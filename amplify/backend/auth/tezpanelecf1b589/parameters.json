@@ -1,6 +1,6 @@
 {
     "identityPoolName": "tezpanelecf1b589_identitypool_ecf1b589",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "tezpanecf1b589",
     "userPoolName": "tezpanelecf1b589_userpool_ecf1b589",
     "autoVerifiedAttributes": [

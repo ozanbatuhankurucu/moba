@@ -67,9 +67,11 @@ function ManageCompanyPage() {
       })
       console.log(res)
      if(res.data.listCompanys.items.length!==0){
-      setCompanyData(res.data.listCompanys.Items[0])
+       console.log('sirket var')
+      setCompanyData(res.data.listCompanys.items[0])
       setIsThereCompany(true)
      }else{
+      console.log('sirket yok')
        setIsThereCompany(false)
      }
     } catch (err) {
