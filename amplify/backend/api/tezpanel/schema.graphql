@@ -1,0 +1,16 @@
+type Company
+  @model
+  @aws_cognito_user_pools
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, read, update, delete] }
+      { allow: groups, groups: ["everyone"], operations: [read] }
+    ]
+  ) {
+  id: ID!
+  companyName: String
+  description:String
+  email: String
+  phone:String
+  logoUrl:String
+}

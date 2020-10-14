@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-tezpanel-dev-94006-authRole",
+      "UnauthRoleArn": "arn:aws:iam::121309892392:role/amplify-tezpanel-dev-94006-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::121309892392:role/amplify-tezpanel-dev-94006-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-tezpanel-dev-94006-deployment",
+      "UnauthRoleName": "amplify-tezpanel-dev-94006-unauthRole",
+      "StackName": "amplify-tezpanel-dev-94006",
+      "StackId": "arn:aws:cloudformation:eu-central-1:121309892392:stack/amplify-tezpanel-dev-94006/1a82de10-0de8-11eb-83cd-062c87541f2a",
+      "AmplifyAppId": "dnj4qawdcdjxm"
+    },
+    "categories": {
+      "auth": {
+        "tezpanelecf1b589": {}
+      }
+    }
+  }
+}
