@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { API, Storage } from 'aws-amplify'
+import { API } from 'aws-amplify'
 import * as mutations from '../../graphql/mutations'
 import { listCompanys } from '../../graphql/queries'
 import {
@@ -17,16 +17,35 @@ import StandardInput from '../../components/Inputs/StandardInput'
 import PhoneInputCustom from '../../components/Inputs/PhoneInput'
 import UploadPhoto from './UploadPhoto/UploadPhoto'
 import NoImageView from '../../assets/images/no-image-view.jpg'
-//uuid for unique id
-import { v4 as uuidv4 } from 'uuid'
+//Storage Service
+import uploadPhoto from '../../helperFunctions/asyncFunctions/storageService'
+//Material UI
+import { makeStyles } from '@material-ui/core/styles'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
+import StepContent from '@material-ui/core/StepContent'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 
 //Scss Imports
 import './managecompany.scss'
-import config from 'aws-exports'
-const {
-  aws_user_files_s3_bucket_region: region,
-  aws_user_files_s3_bucket: bucket,
-} = config
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '100%',
+  },
+  button: {
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+  actionsContainer: {
+    marginBottom: theme.spacing(2),
+  },
+  resetContainer: {
+    padding: theme.spacing(3),
+  },
+}))
 
 function ManageCompanyPage() {
   const [isThereCompany, setIsThereCompany] = useState(null)
@@ -40,23 +59,27 @@ function ManageCompanyPage() {
     logoUrl: '',
   })
   const [errors, setErrors] = useState({
-    companyNameE: {
+    companyName: {
       emptyState: null,
       emptyMessage: 'Şirket ismini lütfen boş geçmeyiniz!',
     },
-    emailE: {
+    email: {
       emptyState: null,
       emptyMessage: 'Şirket emailini lütfen boş geçmeyiniz!',
     },
-    descriptionE: {
+    description: {
       emptyState: null,
       emptyMessage: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
     },
-    phoneE: {
+    phone: {
       emptyState: null,
       emptyMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
     },
   })
+  const classes = useStyles()
+  const [activeStep, setActiveStep] = useState(0)
+  const steps = getSteps()
+
   const getUserCompany = async () => {
     try {
       const res = await API.graphql({
@@ -76,14 +99,15 @@ function ManageCompanyPage() {
     }
   }
 
-  function emptyControl() {
+   function emptyControl() {
+
     if (companyData.companyName === '') {
       console.log("Comp name error if in deyim.'")
       setErrors((prev) => {
         return {
           ...prev,
-          companyNameE: {
-            ...errors.companyNameE,
+          companyName: {
+            ...errors.companyName,
             emptyState: true,
           },
         }
@@ -92,8 +116,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          companyNameE: {
-            ...errors.companyNameE,
+          companyName: {
+            ...errors.companyName,
             emptyState: false,
           },
         }
@@ -104,8 +128,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          emailE: {
-            ...errors.emailE,
+          email: {
+            ...errors.email,
             emptyState: true,
           },
         }
@@ -114,8 +138,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          emailE: {
-            ...errors.emailE,
+          email: {
+            ...errors.email,
             emptyState: false,
           },
         }
@@ -126,8 +150,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          descriptionE: {
-            ...errors.descriptionE,
+          description: {
+            ...errors.description,
             emptyState: true,
           },
         }
@@ -136,8 +160,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          descriptionE: {
-            ...errors.descriptionE,
+          description: {
+            ...errors.description,
             emptyState: false,
           },
         }
@@ -148,8 +172,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          phoneE: {
-            ...errors.phoneE,
+          phone: {
+            ...errors.phone,
             emptyState: true,
           },
         }
@@ -158,8 +182,8 @@ function ManageCompanyPage() {
       setErrors((prev) => {
         return {
           ...prev,
-          phoneE: {
-            ...errors.phoneE,
+          phone: {
+            ...errors.phone,
             emptyState: false,
           },
         }
@@ -185,12 +209,14 @@ function ManageCompanyPage() {
   const createCompany = async (e) => {
     e.preventDefault()
     console.log(emptyControl())
+    console.log('create company metodunu tetikledim')
     if (emptyControl() === false) {
       setSpinnerControl(true)
       console.log('sirket yok')
-      let url = await uploadPhoto()
+      let url = await uploadPhoto(logo)
+      console.log(url)
       companyData.isApproved = false
-      companyData.logoUrl=url
+      companyData.logoUrl = url
       try {
         const result = await API.graphql({
           query: mutations.createCompany,
@@ -205,24 +231,6 @@ function ManageCompanyPage() {
         alert('Şirketiniz oluşturulamamıştır!')
       }
     }
-  }
-
-  async function uploadPhoto() {
-    if (logo !== null) {
-      const uuid = uuidv4()
-      const key = `images/${uuid}${logo.name}`
-      const url = `https://${bucket}.s3.${region}.amazonaws.com/public/${key}`
-      console.log(url)
-      try {
-        await Storage.put(key, logo, {
-          contentType: logo.type,
-        })
-        return url
-      } catch (err) {
-        console.log('s3 error:', err)
-      }
-    }
-    
   }
 
   function handleChange(e) {
@@ -257,11 +265,112 @@ function ManageCompanyPage() {
       })
     }
   }
+  const handleNext = () => {
+    if (activeStep === 0) {
+      console.log(emptyControl())
+      if (!emptyControl()) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      }
+    }
+  }
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+  }
+
+  const handleReset = () => {
+    setActiveStep(0)
+  }
+  function getSteps() {
+    return ['Şirket Bilgileri', 'Create an ad group', 'Create an ad']
+  }
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return (
+          <>
+            <FormGroup>
+              <StandardInput
+                labelTitle='Şirket Adı'
+                inputType='text'
+                isRequired={true}
+                inputName='companyName'
+                cssId='exampleName'
+                value={companyData.companyName}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={errors.companyName.emptyState}
+                emptyErrorMessage={errors.companyName.emptyMessage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <StandardInput
+                labelTitle='Şirket Email'
+                inputType='email'
+                isRequired={true}
+                inputName='email'
+                cssId='exampleEmail'
+                value={companyData.email}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={errors.email.emptyState}
+                emptyErrorMessage={errors.email.emptyMessage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <StandardInput
+                labelTitle='Açıklama'
+                inputType='textarea'
+                isRequired={true}
+                inputName='description'
+                cssId='exampleDescription'
+                value={companyData.description}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={errors.description.emptyState}
+                emptyErrorMessage={errors.description.emptyMessage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <PhoneInputCustom
+                labelTitle='Telefon Numarası'
+                isRequired={true}
+                inputName='phone'
+                value={companyData.phone}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={errors.phone.emptyState}
+                emptyErrorMessage={errors.phone.emptyMessage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <UploadPhoto
+                imgSrc={
+                  companyData.logoUrl === '' ? NoImageView : companyData.logoUrl
+                }
+                isThereCompany={isThereCompany && true}
+                onChangeFunc={handleImage}
+              />
+            </FormGroup>
+          </>
+        )
+      case 1:
+        return 'An ad group contains one or more ads which target a shared set of keywords.'
+      case 2:
+        return `Try out different ad text to see what brings in the most customers,
+                and learn how to enhance your ads using features like ad extensions.
+                If you run into any problems with your ads, find out how to tell if
+                they're running and how to resolve approval issues.`
+      default:
+        return 'Unknown step'
+    }
+  }
 
   useEffect(() => {
     getUserCompany()
   }, [])
-
+  console.log(activeStep)
   console.log(errors)
   console.log(companyData)
 
@@ -286,114 +395,69 @@ function ManageCompanyPage() {
           </Col>
         </Row>
       </Container>
-      <Form onSubmit={createCompany}>
-        <Container className='form-cont'>
-          <Row>
-            <Col className='left' xl='6'>
-              <FormGroup>
-                <StandardInput
-                  labelTitle='Şirket Adı'
-                  inputType='text'
-                  isRequired={true}
-                  inputName='companyName'
-                  cssId='exampleName'
-                  value={companyData.companyName}
-                  onChangeFunc={handleChange}
-                  isThereCompany={isThereCompany && true}
-                  emptyControl={errors.companyNameE.emptyState}
-                  emptyErrorMessage={errors.companyNameE.emptyMessage}
-                />
-              </FormGroup>
-              <FormGroup>
-                <StandardInput
-                  labelTitle='Email'
-                  inputType='email'
-                  isRequired={true}
-                  inputName='email'
-                  cssId='exampleEmail'
-                  value={companyData.email}
-                  onChangeFunc={handleChange}
-                  isThereCompany={isThereCompany && true}
-                  emptyControl={errors.emailE.emptyState}
-                  emptyErrorMessage={errors.emailE.emptyMessage}
-                />
-              </FormGroup>
-              <FormGroup>
-                <StandardInput
-                  labelTitle='Açıklama'
-                  inputType='textarea'
-                  isRequired={true}
-                  inputName='description'
-                  cssId='exampleDescription'
-                  value={companyData.description}
-                  onChangeFunc={handleChange}
-                  isThereCompany={isThereCompany && true}
-                  emptyControl={errors.descriptionE.emptyState}
-                  emptyErrorMessage={errors.descriptionE.emptyMessage}
-                />
-              </FormGroup>
-              <FormGroup>
-                <PhoneInputCustom
-                  labelTitle='TELEFON NUMARASI'
-                  isRequired={true}
-                  inputName='phone'
-                  value={companyData.phone}
-                  onChangeFunc={handleChange}
-                  isThereCompany={isThereCompany && true}
-                  emptyControl={errors.phoneE.emptyState}
-                  emptyErrorMessage={errors.phoneE.emptyMessage}
-                />
-              </FormGroup>
-              <FormGroup>
-                <UploadPhoto
-                  imgSrc={
-                    companyData.logoUrl === ''
-                      ? NoImageView
-                      : companyData.logoUrl
-                  }
-                  isThereCompany={isThereCompany && true}
-                  onChangeFunc={handleImage}
-                />
-              </FormGroup>
-            </Col>
-            <Col xl='6'>test12</Col>
-          </Row>
-          <Row>
-            <Col>
-              {isThereCompany === true ? null : (
-                <Button color='danger' type='submit' value='Submit'>
-                  ŞİRKET OLUŞTUR
-                </Button>
+
+      <Container className='form-cont'>
+        <Row>
+          <Col className='left' xl='6'>
+            <div className={classes.root}>
+              <Stepper activeStep={activeStep} orientation='vertical'>
+                {steps.map((label, index) => (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                    <StepContent>
+                      <div>{getStepContent(index)}</div>
+                      <div className={classes.actionsContainer}>
+                        <div>
+                          <Button
+                            disabled={activeStep === 0}
+                            onClick={handleBack}
+                            className={classes.button}
+                          >
+                            Geri
+                          </Button>
+                          {activeStep === steps.length - 1 ? (
+                            <Button
+                              variant='contained'
+                              color='primary'
+                              className={classes.button}
+                              onClick={createCompany}
+                            >
+                              ŞİRKET OLUŞTUR
+                            </Button>
+                          ) : (
+                            <Button
+                              variant='contained'
+                              color='primary'
+                              onClick={handleNext}
+                              className={classes.button}
+                            >
+                              ILERI
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </StepContent>
+                  </Step>
+                ))}
+              </Stepper>
+              {activeStep === steps.length && (
+                <Paper square elevation={0} className={classes.resetContainer}>
+                  <Typography>
+                    All steps completed - you&apos;re finished
+                  </Typography>
+                  <Button onClick={handleReset} className={classes.button}>
+                    Reset
+                  </Button>
+                </Paper>
               )}
-            </Col>
-          </Row>
-        </Container>
-      </Form>
+            </div>
+          </Col>
+          <Col xl='6'>test</Col>
+        </Row>
+        
+      </Container>
     </div>
   )
 }
 
 export default ManageCompanyPage
-
-// console.log('sirket var')
-//         delete companyData.updatedAt
-//         delete companyData.createdAt
-//         delete companyData.owner
-//         let companyDetails = await uploadPhoto(companyData)
-//         console.log(companyDetails)
-//         try {
-//           const result = await API.graphql({
-//             query: mutations.updateCompany,
-//             variables: { input: companyDetails },
-//           })
-//           console.log(result)
-//           setSpinnerControl(false)
-//           setIsCreateOrUpdate(true)
-//           setTimeout(() => {
-//             setIsCreateOrUpdate(null)
-//           }, 5000)
-//           setCompanyData(result.data.updateCompany)
-// } catch (err) {
-//   console.log(err)
-//   alert('Bilgileriniz güncellenemedi!')
-// }

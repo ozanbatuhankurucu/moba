@@ -4,7 +4,7 @@ function UploadPhoto({ imgSrc, onChangeFunc, isThereCompany }) {
   return (
     <>
       <Label className='lable-title' for='examplePhone'>
-        ŞİRKET LOGOSU
+        Şirket Logosu
       </Label>
       <Row className='image-row m-0'>
         <Col
