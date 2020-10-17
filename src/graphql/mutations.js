@@ -14,6 +14,10 @@ export const createCompany = /* GraphQL */ `
       phone
       logoUrl
       isApproved
+      instagramUrl
+      twitterUrl
+      facebookUrl
+      websiteUrl
       createdAt
       updatedAt
       owner
@@ -33,6 +37,10 @@ export const updateCompany = /* GraphQL */ `
       phone
       logoUrl
       isApproved
+      instagramUrl
+      twitterUrl
+      facebookUrl
+      websiteUrl
       createdAt
       updatedAt
       owner
@@ -52,6 +60,10 @@ export const deleteCompany = /* GraphQL */ `
       phone
       logoUrl
       isApproved
+      instagramUrl
+      twitterUrl
+      facebookUrl
+      websiteUrl
       createdAt
       updatedAt
       owner

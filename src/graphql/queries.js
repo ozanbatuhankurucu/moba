@@ -11,6 +11,10 @@ export const getCompany = /* GraphQL */ `
       phone
       logoUrl
       isApproved
+      instagramUrl
+      twitterUrl
+      facebookUrl
+      websiteUrl
       createdAt
       updatedAt
       owner
@@ -32,6 +36,10 @@ export const listCompanys = /* GraphQL */ `
         phone
         logoUrl
         isApproved
+        instagramUrl
+        twitterUrl
+        facebookUrl
+        websiteUrl
         createdAt
         updatedAt
         owner

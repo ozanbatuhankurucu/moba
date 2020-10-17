@@ -57,6 +57,10 @@ function ManageCompanyPage() {
     description: '',
     phone: '',
     logoUrl: '',
+    instagramUrl:'',
+    twitterUrl:'',
+    facebookUrl:'',
+    websiteUrl:''
   })
   const [errors, setErrors] = useState({
     companyName: {
@@ -75,6 +79,7 @@ function ManageCompanyPage() {
       emptyState: null,
       emptyMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
     },
+   
   })
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
@@ -353,6 +358,50 @@ function ManageCompanyPage() {
                 onChangeFunc={handleImage}
               />
             </FormGroup>
+            <StandardInput
+                labelTitle='Instagram Link'
+                inputType='text'
+                isRequired={false}
+                inputName='instagramUrl'
+                cssId='exampleInstagramLink'
+                value={companyData.instagramUrl}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={false}
+              />
+              <StandardInput
+                labelTitle='Twitter Link'
+                inputType='text'
+                isRequired={false}
+                inputName='twitterUrl'
+                cssId='exampleTwitterLink'
+                value={companyData.twitterUrl}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={false}
+              />
+              <StandardInput
+                labelTitle='Facebook Link'
+                inputType='text'
+                isRequired={false}
+                inputName='facebookUrl'
+                cssId='exampleFacebookLink'
+                value={companyData.facebookUrl}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={false}
+              />
+              <StandardInput
+                labelTitle='Website Link'
+                inputType='text'
+                isRequired={false}
+                inputName='websiteUrl'
+                cssId='exampleInstagramLink'
+                value={companyData.websiteUrl}
+                onChangeFunc={handleChange}
+                isThereCompany={isThereCompany && true}
+                emptyControl={false}
+              />
           </>
         )
       case 1:

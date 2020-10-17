@@ -14,4 +14,8 @@ type Company
   phone:String
   logoUrl:String
   isApproved:Boolean
+  instagramUrl:String
+  twitterUrl:String
+  facebookUrl:String
+  websiteUrl:String
 }
