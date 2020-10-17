@@ -2,9 +2,7 @@ import React, { useState } from 'react'
 import { createBrowserHistory } from 'history'
 import { Router, Route, Switch, Redirect } from 'react-router-dom'
 import {
-  AmplifyAuthenticator,
-  AmplifySignUp,
-  AmplifySignIn,
+  AmplifyAuthenticator
 } from '@aws-amplify/ui-react'
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components'
 import 'bootstrap/dist/css/bootstrap.css'

@@ -4,6 +4,12 @@
         padding: 5px 0;
         border-radius: 4px;
       }
+      .approve-cont{
+        span{
+          color: black;
+          font-weight: 700;
+        }
+      }
     .form-cont{
         .left{
             .lable-title {
@@ -16,8 +22,16 @@
               .image-row {
                 @extend %day-and-time-picker;
                 padding: 0;
-                .rest-logo {
+                .company-logo{
                  object-fit: cover;
+                }
+                .disabled-span{
+                  background-color: #E3E3E3;
+                  padding: 5px 10px;
+                  cursor: not-allowed;
+                &:hover{
+                  font-weight: bold;
+                }
                 }
                 input[type="file"] {
                   position: absolute;

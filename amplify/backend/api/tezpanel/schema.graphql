@@ -13,4 +13,5 @@ type Company
   email: String
   phone:String
   logoUrl:String
+  isApproved:Boolean
 }

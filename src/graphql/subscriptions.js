@@ -10,6 +10,7 @@ export const onCreateCompany = /* GraphQL */ `
       email
       phone
       logoUrl
+      isApproved
       createdAt
       updatedAt
       owner
@@ -25,6 +26,7 @@ export const onUpdateCompany = /* GraphQL */ `
       email
       phone
       logoUrl
+      isApproved
       createdAt
       updatedAt
       owner
@@ -40,6 +42,7 @@ export const onDeleteCompany = /* GraphQL */ `
       email
       phone
       logoUrl
+      isApproved
       createdAt
       updatedAt
       owner

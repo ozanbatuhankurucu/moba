@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { API, Auth, Storage } from 'aws-amplify'
+import { API, Storage } from 'aws-amplify'
 import * as mutations from '../../graphql/mutations'
 import { listCompanys } from '../../graphql/queries'
 import {
@@ -8,17 +8,18 @@ import {
   Col,
   Form,
   FormGroup,
-  Label,
-  Input,
   Button,
-  Spinner,Alert 
+  Spinner,
+  Alert,
 } from 'reactstrap'
+//Inputs
+import StandardInput from '../../components/Inputs/StandardInput'
+import PhoneInputCustom from '../../components/Inputs/PhoneInput'
+import UploadPhoto from './UploadPhoto/UploadPhoto'
 import NoImageView from '../../assets/images/no-image-view.jpg'
 //uuid for unique id
 import { v4 as uuidv4 } from 'uuid'
-//Phone Selecter Packages
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+
 //Scss Imports
 import './managecompany.scss'
 import config from 'aws-exports'
@@ -26,8 +27,8 @@ const {
   aws_user_files_s3_bucket_region: region,
   aws_user_files_s3_bucket: bucket,
 } = config
+
 function ManageCompanyPage() {
-  const [isCreateOrUpdate, setIsCreateOrUpdate] = useState(null)
   const [isThereCompany, setIsThereCompany] = useState(null)
   const [spinnerControl, setSpinnerControl] = useState(false)
   const [logo, setLogo] = useState(null)
@@ -55,49 +56,26 @@ function ManageCompanyPage() {
       emptyState: null,
       emptyMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
     },
-    logoE: {
-      emptyState: null,
-      emptyMessage: 'Şirket logosunu lütfen boş geçmeyiniz!',
-    },
   })
-  const getCompanies = async () => {
+  const getUserCompany = async () => {
     try {
       const res = await API.graphql({
         query: listCompanys,
       })
       console.log(res)
-     if(res.data.listCompanys.items.length!==0){
-       console.log('sirket var')
-      setCompanyData(res.data.listCompanys.items[0])
-      setIsThereCompany(true)
-     }else{
-      console.log('sirket yok')
-       setIsThereCompany(false)
-     }
+      if (res.data.listCompanys.items.length !== 0) {
+        console.log('sirket var')
+        setCompanyData(res.data.listCompanys.items[0])
+        setIsThereCompany(true)
+      } else {
+        console.log('sirket yok')
+        setIsThereCompany(false)
+      }
     } catch (err) {
       console.log('error getting all companies:', err)
     }
   }
-  // const getOwnerCompany = async (companies) => {
-  //   let user
-  //   try {
-  //     user = await Auth.currentAuthenticatedUser()
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-  //   console.log(user)
 
-  //   setUserID(user.attributes.sub)
-  //   console.log(companies)
-  //   companies.data.listCompanys.items.forEach((element) => {
-  //     console.log(user.attributes.sub)
-  //     if (element.ownerID === user.attributes.sub) {
-  //       console.log('restaurantlar eslesti!')
-       
-       
-  //     }
-  //   })
-  // }
   function emptyControl() {
     if (companyData.companyName === '') {
       console.log("Comp name error if in deyim.'")
@@ -187,36 +165,14 @@ function ManageCompanyPage() {
         }
       })
     }
-    if (companyData.logoUrl === '') {
-      console.log("Logo error else if in deyim.'")
-      setErrors((prev) => {
-        return {
-          ...prev,
-          logoE: {
-            ...errors.logoE,
-            emptyState: true,
-          },
-        }
-      })
-    } else {
-      setErrors((prev) => {
-        return {
-          ...prev,
-          logoE: {
-            ...errors.logoE,
-            emptyState: false,
-          },
-        }
-      })
-    }
+
     console.log(errors)
 
     if (
       companyData.companyName !== '' &&
       companyData.description !== '' &&
       companyData.email !== '' &&
-      companyData.phone !== '' &&
-      companyData.logoUrl !== ''
+      companyData.phone !== ''
     ) {
       console.log('suan datalari guncelleyebilirim')
       return false
@@ -226,76 +182,32 @@ function ManageCompanyPage() {
     }
   }
 
-  const createAndUpdateCompany = async (e) => {
+  const createCompany = async (e) => {
     e.preventDefault()
-
     console.log(emptyControl())
-
     if (emptyControl() === false) {
       setSpinnerControl(true)
-      if (isThereCompany) {
-        console.log('sirket var')
-        let companyDetails = {
-          id: companyData.id,
-          companyName: companyData.companyName,
-          email: companyData.email,
-          description: companyData.description,
-          phone: companyData.phone,
-          logoUrl: companyData.logoUrl,
-        
-        }
-        console.log(companyDetails)
-
-        companyDetails = await uploadPhoto(companyDetails)
-        console.log(companyDetails)
-        try {
-          const result = await API.graphql({
-            query: mutations.updateCompany,
-            variables: { input: companyDetails },
-          })
-          console.log(result)
-          setSpinnerControl(false)
-          setIsCreateOrUpdate(true)
-          setTimeout(() => {
-            setIsCreateOrUpdate(null)
-          },5000);
-          setCompanyData(result.data.updateCompany)
-        } catch (err) {
-          console.log(err)
-          alert('Bilgileriniz güncellenemedi!')
-        }
-      } else {
-        console.log('sirket yok')
-        let companyDetails = {
-          companyName: companyData.companyName,
-          email: companyData.email,
-          description: companyData.description,
-          phone: companyData.phone,
-          logoUrl: companyData.logoUrl,
-        }
-        companyDetails = await uploadPhoto(companyDetails)
-        try {
-          const result = await API.graphql({
-            query: mutations.createCompany,
-            variables: { input: companyDetails },
-          })
-          console.log(result)
-          setSpinnerControl(false)
-          setIsCreateOrUpdate(false)
-          setTimeout(() => {
-            setIsCreateOrUpdate(null)
-          },5000);
-          setIsThereCompany(true)
-          setCompanyData(result.data.createCompany)
-        } catch (err) {
-          console.log(err)
-          alert('Şirketiniz oluşturulamamıştır!')
-        }
+      console.log('sirket yok')
+      let url = await uploadPhoto()
+      companyData.isApproved = false
+      companyData.logoUrl=url
+      try {
+        const result = await API.graphql({
+          query: mutations.createCompany,
+          variables: { input: companyData },
+        })
+        console.log(result)
+        setSpinnerControl(false)
+        setIsThereCompany(true)
+        setCompanyData(result.data.createCompany)
+      } catch (err) {
+        console.log(err)
+        alert('Şirketiniz oluşturulamamıştır!')
       }
     }
   }
 
-  async function uploadPhoto(companyDetails) {
+  async function uploadPhoto() {
     if (logo !== null) {
       const uuid = uuidv4()
       const key = `images/${uuid}${logo.name}`
@@ -305,12 +217,12 @@ function ManageCompanyPage() {
         await Storage.put(key, logo, {
           contentType: logo.type,
         })
-        companyDetails.logoUrl = url
+        return url
       } catch (err) {
         console.log('s3 error:', err)
       }
     }
-    return companyDetails
+    
   }
 
   function handleChange(e) {
@@ -347,7 +259,7 @@ function ManageCompanyPage() {
   }
 
   useEffect(() => {
-    getCompanies()
+    getUserCompany()
   }, [])
 
   console.log(errors)
@@ -363,145 +275,92 @@ function ManageCompanyPage() {
     </div>
   ) : (
     <div className='content'>
-      <Container>
+      <Container className='approve-cont'>
         <Row>
           <Col className='d-flex justify-content-center'>
-          {isCreateOrUpdate===null ? null : (isCreateOrUpdate===true ? ( <Alert>Bilgileriniz başarıyla güncellenmiştir! </Alert>) : (<Alert>Şirketiniz başarıyla oluşturulmuştur!</Alert>) ) }
+            {isThereCompany && (
+              <Alert color='warning'>
+                <span>Şirketiniz onaylanma aşamasındadır...</span>
+              </Alert>
+            )}
           </Col>
         </Row>
       </Container>
-      <Form onSubmit={createAndUpdateCompany}>
+      <Form onSubmit={createCompany}>
         <Container className='form-cont'>
           <Row>
             <Col className='left' xl='6'>
               <FormGroup>
-                <Label className='lable-title' for='exampleName'>
-                  Şirket Adı<span className='star'>*</span>
-                </Label>
-                <Input
-                  type='text'
-                  name='companyName'
-                  id='exampleName'
+                <StandardInput
+                  labelTitle='Şirket Adı'
+                  inputType='text'
+                  isRequired={true}
+                  inputName='companyName'
+                  cssId='exampleName'
                   value={companyData.companyName}
-                  onChange={handleChange}
+                  onChangeFunc={handleChange}
+                  isThereCompany={isThereCompany && true}
+                  emptyControl={errors.companyNameE.emptyState}
+                  emptyErrorMessage={errors.companyNameE.emptyMessage}
                 />
-                {/* Sol taraf true ise sagi donuyor false is null donuyor. */}
-                {errors.companyNameE.emptyState && (
-                  <mark>{errors.companyNameE.emptyMessage}</mark>
-                )}
               </FormGroup>
               <FormGroup>
-                <Label className='lable-title' for='exampleEmail'>
-                  Email<span className='star'>*</span>
-                </Label>
-                <Input
-                  type='email'
-                  name='email'
-                  id='exampleEmail'
+                <StandardInput
+                  labelTitle='Email'
+                  inputType='email'
+                  isRequired={true}
+                  inputName='email'
+                  cssId='exampleEmail'
                   value={companyData.email}
-                  onChange={handleChange}
+                  onChangeFunc={handleChange}
+                  isThereCompany={isThereCompany && true}
+                  emptyControl={errors.emailE.emptyState}
+                  emptyErrorMessage={errors.emailE.emptyMessage}
                 />
-                {errors.emailE.emptyState && (
-                  <mark>{errors.emailE.emptyMessage}</mark>
-                )}
               </FormGroup>
               <FormGroup>
-                <Label className='lable-title' for='exampleDescription'>
-                  Açıklama<span className='star'>*</span>
-                </Label>
-                <Input
-                  type='textarea'
-                  name='description'
-                  id='exampleDescription'
+                <StandardInput
+                  labelTitle='Açıklama'
+                  inputType='textarea'
+                  isRequired={true}
+                  inputName='description'
+                  cssId='exampleDescription'
                   value={companyData.description}
-                  onChange={handleChange}
+                  onChangeFunc={handleChange}
+                  isThereCompany={isThereCompany && true}
+                  emptyControl={errors.descriptionE.emptyState}
+                  emptyErrorMessage={errors.descriptionE.emptyMessage}
                 />
-                {errors.descriptionE.emptyState && (
-                  <mark>{errors.descriptionE.emptyMessage}</mark>
-                )}
               </FormGroup>
               <FormGroup>
-                <Label className='lable-title' for='examplePhone'>
-                  TELEFON NUMARASI<span className='star'>*</span>
-                </Label>
-                <PhoneInput
-                  inputStyle={{ paddingLeft: '48px' }}
-                  name='phone'
-                  //istenilen ulkeleri ekleyebiliyoruz buraya.
-                  onlyCountries={['tr']}
-                  country={'tr'}
+                <PhoneInputCustom
+                  labelTitle='TELEFON NUMARASI'
+                  isRequired={true}
+                  inputName='phone'
                   value={companyData.phone}
-                  onChange={handleChange}
+                  onChangeFunc={handleChange}
+                  isThereCompany={isThereCompany && true}
+                  emptyControl={errors.phoneE.emptyState}
+                  emptyErrorMessage={errors.phoneE.emptyMessage}
                 />
-                {errors.phoneE.emptyState && (
-                  <mark>{errors.phoneE.emptyMessage}</mark>
-                )}
               </FormGroup>
               <FormGroup>
-                <Label className='lable-title' for='examplePhone'>
-                  ŞİRKET LOGOSU<span className='star'>*</span>
-                </Label>
-                <Row className='image-row py-3 m-0'>
-                  <Col
-                    className='p-0 d-flex flex-column justify-content-around align-items-center'
-                    xl='6'
-                    lg='6'
-                    md='6'
-                    sm='6'
-                    xs='6'
-                  >
-                    <img
-                      className='company-logo'
-                      alt='company-logo'
-                      src={
-                        companyData.logoUrl === ''
-                          ? NoImageView
-                          : companyData.logoUrl
-                      }
-                    ></img>
-                  </Col>
-                  <Col
-                    className='p-0 d-flex justify-content-center align-items-center '
-                    xl='6'
-                    lg='6'
-                    md='6'
-                    sm='6'
-                    xs='6'
-                  >
-                    <label htmlFor='upload'>
-                      <Input
-                        type='file'
-                        name='file'
-                        id='upload'
-                        onChange={handleImage}
-                      />
-                      <svg>
-                        <rect
-                          x='0'
-                          y='0'
-                          fill='none'
-                          width='100%'
-                          height='100%'
-                        />
-                      </svg>
-                      Logo Yükle
-                    </label>
-                  </Col>
-                  {errors.logoE.emptyState && (
-                    <mark>{errors.logoE.emptyMessage}</mark>
-                  )}
-                </Row>
+                <UploadPhoto
+                  imgSrc={
+                    companyData.logoUrl === ''
+                      ? NoImageView
+                      : companyData.logoUrl
+                  }
+                  isThereCompany={isThereCompany && true}
+                  onChangeFunc={handleImage}
+                />
               </FormGroup>
             </Col>
             <Col xl='6'>test12</Col>
           </Row>
           <Row>
             <Col>
-              {isThereCompany === true ? (
-                <Button color='info' type='submit' value='Submit'>
-                  BİLGİLERİ GÜNCELLE
-                </Button>
-              ) : (
+              {isThereCompany === true ? null : (
                 <Button color='danger' type='submit' value='Submit'>
                   ŞİRKET OLUŞTUR
                 </Button>
@@ -515,3 +374,26 @@ function ManageCompanyPage() {
 }
 
 export default ManageCompanyPage
+
+// console.log('sirket var')
+//         delete companyData.updatedAt
+//         delete companyData.createdAt
+//         delete companyData.owner
+//         let companyDetails = await uploadPhoto(companyData)
+//         console.log(companyDetails)
+//         try {
+//           const result = await API.graphql({
+//             query: mutations.updateCompany,
+//             variables: { input: companyDetails },
+//           })
+//           console.log(result)
+//           setSpinnerControl(false)
+//           setIsCreateOrUpdate(true)
+//           setTimeout(() => {
+//             setIsCreateOrUpdate(null)
+//           }, 5000)
+//           setCompanyData(result.data.updateCompany)
+// } catch (err) {
+//   console.log(err)
+//   alert('Bilgileriniz güncellenemedi!')
+// }
