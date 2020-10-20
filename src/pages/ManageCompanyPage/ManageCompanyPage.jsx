@@ -6,7 +6,6 @@ import {
   Container,
   Row,
   Col,
-  Form,
   FormGroup,
   Button,
   Spinner,
@@ -17,6 +16,8 @@ import StandardInput from '../../components/Inputs/StandardInput'
 import PhoneInputCustom from '../../components/Inputs/PhoneInput'
 import UploadPhoto from './UploadPhoto/UploadPhoto'
 import NoImageView from '../../assets/images/no-image-view.jpg'
+//Use Hook Form
+import { useForm } from 'react-hook-form'
 //Storage Service
 import uploadPhoto from '../../helperFunctions/asyncFunctions/storageService'
 //Material UI
@@ -51,39 +52,33 @@ function ManageCompanyPage() {
   const [isThereCompany, setIsThereCompany] = useState(null)
   const [spinnerControl, setSpinnerControl] = useState(false)
   const [logo, setLogo] = useState(null)
+  const { register, handleSubmit, watch, errors } = useForm()
+  console.log(watch('description'))
   const [companyData, setCompanyData] = useState({
     companyName: '',
     email: '',
     description: '',
     phone: '',
     logoUrl: '',
-    instagramUrl:'',
-    twitterUrl:'',
-    facebookUrl:'',
-    websiteUrl:''
+    instagramUrl: '',
+    twitterUrl: '',
+    facebookUrl: '',
+    websiteUrl: '',
   })
-  const [errors, setErrors] = useState({
-    companyName: {
-      emptyState: null,
-      emptyMessage: 'Şirket ismini lütfen boş geçmeyiniz!',
-    },
-    email: {
-      emptyState: null,
-      emptyMessage: 'Şirket emailini lütfen boş geçmeyiniz!',
-    },
-    description: {
-      emptyState: null,
-      emptyMessage: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
-    },
-    phone: {
-      emptyState: null,
-      emptyMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
-    },
-   
+  const [errorMessages, setErrors] = useState({
+    companyNameEMessage: 'Şirket ismini lütfen boş geçmeyiniz!',
+    emailEMessage: 'Şirket emailini lütfen boş geçmeyiniz!',
+    descriptionEMessage: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
+    phoneEMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
   })
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
   const steps = getSteps()
+
+  const onSubmit = (data) => {
+    console.log(data)
+    setCompanyData(data)
+  }
 
   const getUserCompany = async () => {
     try {
@@ -104,157 +99,29 @@ function ManageCompanyPage() {
     }
   }
 
-   function emptyControl() {
-
-    if (companyData.companyName === '') {
-      console.log("Comp name error if in deyim.'")
-      setErrors((prev) => {
-        return {
-          ...prev,
-          companyName: {
-            ...errors.companyName,
-            emptyState: true,
-          },
-        }
-      })
-    } else {
-      setErrors((prev) => {
-        return {
-          ...prev,
-          companyName: {
-            ...errors.companyName,
-            emptyState: false,
-          },
-        }
-      })
-    }
-    if (companyData.email === '') {
-      console.log("Email error else if in deyim.'")
-      setErrors((prev) => {
-        return {
-          ...prev,
-          email: {
-            ...errors.email,
-            emptyState: true,
-          },
-        }
-      })
-    } else {
-      setErrors((prev) => {
-        return {
-          ...prev,
-          email: {
-            ...errors.email,
-            emptyState: false,
-          },
-        }
-      })
-    }
-    if (companyData.description === '') {
-      console.log("Descrıptıon error else if in deyim.'")
-      setErrors((prev) => {
-        return {
-          ...prev,
-          description: {
-            ...errors.description,
-            emptyState: true,
-          },
-        }
-      })
-    } else {
-      setErrors((prev) => {
-        return {
-          ...prev,
-          description: {
-            ...errors.description,
-            emptyState: false,
-          },
-        }
-      })
-    }
-    if (companyData.phone === '') {
-      console.log("Phone error else if in deyim.'")
-      setErrors((prev) => {
-        return {
-          ...prev,
-          phone: {
-            ...errors.phone,
-            emptyState: true,
-          },
-        }
-      })
-    } else {
-      setErrors((prev) => {
-        return {
-          ...prev,
-          phone: {
-            ...errors.phone,
-            emptyState: false,
-          },
-        }
-      })
-    }
-
-    console.log(errors)
-
-    if (
-      companyData.companyName !== '' &&
-      companyData.description !== '' &&
-      companyData.email !== '' &&
-      companyData.phone !== ''
-    ) {
-      console.log('suan datalari guncelleyebilirim')
-      return false
-    } else {
-      console.log('suan datalari guncelleyemem.')
-      return true
-    }
-  }
-
   const createCompany = async (e) => {
     e.preventDefault()
-    console.log(emptyControl())
-    console.log('create company metodunu tetikledim')
-    if (emptyControl() === false) {
-      setSpinnerControl(true)
-      console.log('sirket yok')
-      let url = await uploadPhoto(logo)
-      console.log(url)
-      companyData.isApproved = false
-      companyData.logoUrl = url
-      try {
-        const result = await API.graphql({
-          query: mutations.createCompany,
-          variables: { input: companyData },
-        })
-        console.log(result)
-        setSpinnerControl(false)
-        setIsThereCompany(true)
-        setCompanyData(result.data.createCompany)
-      } catch (err) {
-        console.log(err)
-        alert('Şirketiniz oluşturulamamıştır!')
-      }
-    }
-  }
 
-  function handleChange(e) {
-    console.log(errors)
-    if (e.target === undefined) {
-      setCompanyData((prev) => {
-        return {
-          ...prev,
-          phone: e,
-        }
+    console.log('create company metodunu tetikledim')
+
+    setSpinnerControl(true)
+    console.log('sirket yok')
+    let url = await uploadPhoto(logo)
+    console.log(url)
+    companyData.isApproved = false
+    companyData.logoUrl = url
+    try {
+      const result = await API.graphql({
+        query: mutations.createCompany,
+        variables: { input: companyData },
       })
-    } else {
-      const { name, value } = e.target
-      setCompanyData((prev) => {
-        return {
-          ...prev,
-          [name]: value,
-        }
-      })
+      console.log(result)
+      setSpinnerControl(false)
+      setIsThereCompany(true)
+      setCompanyData(result.data.createCompany)
+    } catch (err) {
+      console.log(err)
+      alert('Şirketiniz oluşturulamamıştır!')
     }
   }
 
@@ -272,8 +139,11 @@ function ManageCompanyPage() {
   }
   const handleNext = () => {
     if (activeStep === 0) {
-      console.log(emptyControl())
-      if (!emptyControl()) {
+      if (
+        watch('companyName') !== '' &&
+        watch('email') !== '' &&
+        watch('description') !== ''
+      ) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1)
       }
     }
@@ -289,7 +159,7 @@ function ManageCompanyPage() {
   function getSteps() {
     return ['Şirket Bilgileri', 'Create an ad group', 'Create an ad']
   }
-
+  //TODO BIr fonksiyon yaz ve butun input degerlerini orada topla ki kaybolmasin
   function getStepContent(step) {
     switch (step) {
       case 0:
@@ -301,26 +171,32 @@ function ManageCompanyPage() {
                 inputType='text'
                 isRequired={true}
                 inputName='companyName'
-                cssId='exampleName'
-                value={companyData.companyName}
-                onChangeFunc={handleChange}
+                refTemp={register({ required: true })}
+                defaultVal={companyData.companyName}
                 isThereCompany={isThereCompany && true}
-                emptyControl={errors.companyName.emptyState}
-                emptyErrorMessage={errors.companyName.emptyMessage}
+                emptyControl={errors.companyName}
+                emptyErrorMessage={errorMessages.companyNameEMessage}
               />
             </FormGroup>
+
             <FormGroup>
               <StandardInput
                 labelTitle='Şirket Email'
                 inputType='email'
                 isRequired={true}
                 inputName='email'
-                cssId='exampleEmail'
-                value={companyData.email}
-                onChangeFunc={handleChange}
+                refTemp={register({
+                  required: true,
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Geçersiz mail adresi!',
+                  },
+                })}
                 isThereCompany={isThereCompany && true}
-                emptyControl={errors.email.emptyState}
-                emptyErrorMessage={errors.email.emptyMessage}
+                defaultVal={companyData.email}
+                emptyControl={errors.email}
+                emptyErrorMessage={errorMessages.emailEMessage}
+                emailErrorMessage={errors.email && errors.email.message}
               />
             </FormGroup>
             <FormGroup>
@@ -329,27 +205,26 @@ function ManageCompanyPage() {
                 inputType='textarea'
                 isRequired={true}
                 inputName='description'
-                cssId='exampleDescription'
-                value={companyData.description}
-                onChangeFunc={handleChange}
+                refTemp={register({ required: true })}
                 isThereCompany={isThereCompany && true}
-                emptyControl={errors.description.emptyState}
-                emptyErrorMessage={errors.description.emptyMessage}
+                emptyControl={errors.description}
+                defaultVal={companyData.description}
+                emptyErrorMessage={errorMessages.descriptionEMessage}
               />
             </FormGroup>
-            <FormGroup>
+
+            {/* <FormGroup>
               <PhoneInputCustom
                 labelTitle='Telefon Numarası'
                 isRequired={true}
                 inputName='phone'
-                value={companyData.phone}
-                onChangeFunc={handleChange}
+                ref={register({ required: true })}
                 isThereCompany={isThereCompany && true}
-                emptyControl={errors.phone.emptyState}
-                emptyErrorMessage={errors.phone.emptyMessage}
+                emptyControl={errors.phone}
+                emptyErrorMessage={errorMessages.phoneEMessage}
               />
-            </FormGroup>
-            <FormGroup>
+            </FormGroup> */}
+            {/* <FormGroup>
               <UploadPhoto
                 imgSrc={
                   companyData.logoUrl === '' ? NoImageView : companyData.logoUrl
@@ -357,51 +232,51 @@ function ManageCompanyPage() {
                 isThereCompany={isThereCompany && true}
                 onChangeFunc={handleImage}
               />
-            </FormGroup>
-            <StandardInput
+            </FormGroup> */}
+            {/* <FormGroup>
+              <StandardInput
                 labelTitle='Instagram Link'
                 inputType='text'
                 isRequired={false}
                 inputName='instagramUrl'
-                cssId='exampleInstagramLink'
-                value={companyData.instagramUrl}
-                onChangeFunc={handleChange}
+                refTemp={register}
                 isThereCompany={isThereCompany && true}
                 emptyControl={false}
               />
+            </FormGroup>
+            <FormGroup>
               <StandardInput
                 labelTitle='Twitter Link'
                 inputType='text'
                 isRequired={false}
                 inputName='twitterUrl'
-                cssId='exampleTwitterLink'
-                value={companyData.twitterUrl}
-                onChangeFunc={handleChange}
+                refTemp={register}
                 isThereCompany={isThereCompany && true}
                 emptyControl={false}
               />
+            </FormGroup>
+            <FormGroup>
               <StandardInput
                 labelTitle='Facebook Link'
                 inputType='text'
                 isRequired={false}
                 inputName='facebookUrl'
-                cssId='exampleFacebookLink'
-                value={companyData.facebookUrl}
-                onChangeFunc={handleChange}
+                refTemp={register}
                 isThereCompany={isThereCompany && true}
                 emptyControl={false}
               />
+            </FormGroup>
+            <FormGroup>
               <StandardInput
                 labelTitle='Website Link'
                 inputType='text'
                 isRequired={false}
                 inputName='websiteUrl'
-                cssId='exampleInstagramLink'
-                value={companyData.websiteUrl}
-                onChangeFunc={handleChange}
+                refTemp={register}
                 isThereCompany={isThereCompany && true}
                 emptyControl={false}
               />
+            </FormGroup> */}
           </>
         )
       case 1:
@@ -420,7 +295,7 @@ function ManageCompanyPage() {
     getUserCompany()
   }, [])
   console.log(activeStep)
-  console.log(errors)
+  console.log(errorMessages)
   console.log(companyData)
 
   return isThereCompany === null ? (
@@ -454,37 +329,40 @@ function ManageCompanyPage() {
                   <Step key={label}>
                     <StepLabel>{label}</StepLabel>
                     <StepContent>
-                      <div>{getStepContent(index)}</div>
-                      <div className={classes.actionsContainer}>
-                        <div>
-                          <Button
-                            disabled={activeStep === 0}
-                            onClick={handleBack}
-                            className={classes.button}
-                          >
-                            Geri
-                          </Button>
-                          {activeStep === steps.length - 1 ? (
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <div>{getStepContent(index)}</div>
+                        <div className={classes.actionsContainer}>
+                          <div>
                             <Button
-                              variant='contained'
-                              color='primary'
-                              className={classes.button}
-                              onClick={createCompany}
-                            >
-                              ŞİRKET OLUŞTUR
-                            </Button>
-                          ) : (
-                            <Button
-                              variant='contained'
-                              color='primary'
-                              onClick={handleNext}
+                              disabled={activeStep === 0}
+                              onClick={handleBack}
                               className={classes.button}
                             >
-                              ILERI
+                              Geri
                             </Button>
-                          )}
+                            {activeStep === steps.length - 1 ? (
+                              <Button
+                                variant='contained'
+                                color='primary'
+                                className={classes.button}
+                                onClick={createCompany}
+                              >
+                                ŞİRKET OLUŞTUR
+                              </Button>
+                            ) : (
+                              <Button
+                                variant='contained'
+                                color='primary'
+                                type='submit'
+                                className={classes.button}
+                                onClick={handleNext}
+                              >
+                                ILERI
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      </form>
                     </StepContent>
                   </Step>
                 ))}
@@ -503,10 +381,17 @@ function ManageCompanyPage() {
           </Col>
           <Col xl='6'>test</Col>
         </Row>
-        
       </Container>
     </div>
   )
 }
 
 export default ManageCompanyPage
+
+// {/* register your input into the hook by invoking the "register" function */}
+// <input name='example' ref={register({ required: true })} />
+// {errors.example && <span>This field is required</span>}
+// {/* include validation with required or other standard HTML validation rules */}
+// <input name='exampleRequired' ref={register({ required: true })} />
+// {/* errors will return when field validation fails  */}
+// {errors.exampleRequired && <span>This field is required</span>}

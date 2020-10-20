@@ -1,31 +1,51 @@
 import React from 'react'
-import { Label, Input } from 'reactstrap'
+import { Label } from 'reactstrap'
+import styled from 'styled-components'
+
+const StyledInput = styled.input`
+background-color: #ffffff;
+border: 1px solid #dddddd;
+border-radius: 4px;
+color: #66615b;
+line-height: normal;
+font-size: 14px;
+transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+  background-color 0.3s ease-in-out;
+box-shadow: none;
+padding: 10px 10px 10px 10px;
+display: block;
+width: 100%;
+`
+
 function StandardInput({
   labelTitle,
   isRequired,
   inputName,
-  cssId,
-  value,
-  onChangeFunc,
   isThereCompany,
   emptyControl,
+  inputType,
+  refTemp,
   emptyErrorMessage,
-  inputType
+  defaultVal,
+  emailErrorMessage
 }) {
+ 
+  console.log(emailErrorMessage)
+
   return (
     <>
       <Label className='lable-title' for='exampleName'>
         {labelTitle} {isRequired && <span className='star'>*</span>}
       </Label>
-      <Input
-        type={inputType}
+      <StyledInput
+        type='textarea'
         name={inputName}
-        id={cssId}
-        value={value}
-        onChange={onChangeFunc}
+        ref={refTemp}
         disabled={isThereCompany}
+        defaultValue={defaultVal}
       />
       {emptyControl && <mark>{emptyErrorMessage}</mark>}
+      {emailErrorMessage!==undefined ? (emptyControl && <div><mark>{emailErrorMessage}</mark></div>) : null}
     </>
   )
 }
