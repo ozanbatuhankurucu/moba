@@ -1,0 +1,16 @@
+.pickphoto-cont {
+
+  .pickphoto-row {
+    height: 200px;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    .left {
+      .company-logo {
+        height: 100%;
+      }
+    }
+    .right {
+      padding-top: 15px;
+    }
+  }
+}

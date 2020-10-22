@@ -13,9 +13,8 @@ import {
 } from 'reactstrap'
 //Inputs
 import StandardInput from '../../components/Inputs/StandardInput'
-import PhoneInputCustom from '../../components/Inputs/PhoneInput'
-import UploadPhoto from './UploadPhoto/UploadPhoto'
-import NoImageView from '../../assets/images/no-image-view.jpg'
+//Photo Picker
+import PickPhoto from '../../components/PhotoPicker/PickPhoto';
 //Use Hook Form
 import { useForm } from 'react-hook-form'
 //Storage Service
@@ -51,9 +50,12 @@ const useStyles = makeStyles((theme) => ({
 function ManageCompanyPage() {
   const [isThereCompany, setIsThereCompany] = useState(null)
   const [spinnerControl, setSpinnerControl] = useState(false)
-  const [logo, setLogo] = useState(null)
+  const [logo, setLogo] = useState()
+  const [image, setImage] = useState();
+
+ 
   const { register, handleSubmit, watch, errors } = useForm()
-  console.log(watch('description'))
+  console.log(watch('phone'))
   const [companyData, setCompanyData] = useState({
     companyName: '',
     email: '',
@@ -102,8 +104,6 @@ function ManageCompanyPage() {
   const createCompany = async (e) => {
     e.preventDefault()
 
-    console.log('create company metodunu tetikledim')
-
     setSpinnerControl(true)
     console.log('sirket yok')
     let url = await uploadPhoto(logo)
@@ -125,24 +125,19 @@ function ManageCompanyPage() {
     }
   }
 
-  function handleImage(e) {
-    const file = e.target.files[0]
-    setLogo(file)
-    if (file !== undefined) {
-      setCompanyData((prev) => {
-        return {
-          ...prev,
-          logoUrl: URL.createObjectURL(file),
-        }
-      })
-    }
-  }
+ 
+  console.log(Boolean(errors.companyName))
+  console.log(errors)
+  console.log(errors.email)
+  console.log(errors.email === false ? 'false im' : 'degilim')
   const handleNext = () => {
     if (activeStep === 0) {
       if (
         watch('companyName') !== '' &&
-        watch('email') !== '' &&
-        watch('description') !== ''
+        watch('email') !== '' && 
+        errors.email === undefined &&
+        watch('description') !== '' &&
+        watch('phone') !== '' 
       ) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1)
       }
@@ -159,7 +154,17 @@ function ManageCompanyPage() {
   function getSteps() {
     return ['Şirket Bilgileri', 'Create an ad group', 'Create an ad']
   }
-  //TODO BIr fonksiyon yaz ve butun input degerlerini orada topla ki kaybolmasin
+
+  function handleImage(e) {
+    console.log(e.target.files[0])
+    if(e.target.files[0]!==undefined){
+      setLogo(e.target.files[0]);
+    }
+    //setImage(URL.createObjectURL(e.target.files[0]));
+   
+
+  }
+
   function getStepContent(step) {
     switch (step) {
       case 0:
@@ -171,32 +176,31 @@ function ManageCompanyPage() {
                 inputType='text'
                 isRequired={true}
                 inputName='companyName'
-                refTemp={register({ required: true })}
+                refTemp={register({
+                  required: 'Şirket ismini lütfen boş geçmeyiniz!',
+                })}
                 defaultVal={companyData.companyName}
                 isThereCompany={isThereCompany && true}
                 emptyControl={errors.companyName}
-                emptyErrorMessage={errorMessages.companyNameEMessage}
               />
             </FormGroup>
 
             <FormGroup>
               <StandardInput
                 labelTitle='Şirket Email'
-                inputType='email'
+                inputType='text'
                 isRequired={true}
                 inputName='email'
                 refTemp={register({
-                  required: true,
+                  required: 'Şirket emailini lütfen boş geçmeyiniz!',
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Geçersiz mail adresi!',
+                    message: 'Geçersiz email adresi!',
                   },
                 })}
                 isThereCompany={isThereCompany && true}
                 defaultVal={companyData.email}
                 emptyControl={errors.email}
-                emptyErrorMessage={errorMessages.emailEMessage}
-                emailErrorMessage={errors.email && errors.email.message}
               />
             </FormGroup>
             <FormGroup>
@@ -205,35 +209,34 @@ function ManageCompanyPage() {
                 inputType='textarea'
                 isRequired={true}
                 inputName='description'
-                refTemp={register({ required: true })}
+                refTemp={register({
+                  required: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
+                })}
                 isThereCompany={isThereCompany && true}
-                emptyControl={errors.description}
                 defaultVal={companyData.description}
-                emptyErrorMessage={errorMessages.descriptionEMessage}
+                emptyControl={errors.description}
               />
             </FormGroup>
-
-            {/* <FormGroup>
-              <PhoneInputCustom
-                labelTitle='Telefon Numarası'
+            <FormGroup>
+              <StandardInput
+                labelTitle='Telefon'
+                inputType='tel'
                 isRequired={true}
                 inputName='phone'
-                ref={register({ required: true })}
+                refTemp={register({
+                  required: 'Şirket telefonunu lütfen boş geçmeyiniz!',
+                })}
                 isThereCompany={isThereCompany && true}
+                defaultVal={companyData.phone}
                 emptyControl={errors.phone}
-                emptyErrorMessage={errorMessages.phoneEMessage}
               />
-            </FormGroup> */}
-            {/* <FormGroup>
-              <UploadPhoto
-                imgSrc={
-                  companyData.logoUrl === '' ? NoImageView : companyData.logoUrl
-                }
-                isThereCompany={isThereCompany && true}
-                onChangeFunc={handleImage}
-              />
-            </FormGroup> */}
-            {/* <FormGroup>
+            </FormGroup>
+            
+           <FormGroup>
+           <PickPhoto handleImage={handleImage} imageUrl={logo!==undefined ? URL.createObjectURL(logo) : null} labelTitle='Şirket Logosu' isRequired={false}/>   
+             
+            </FormGroup> 
+            <FormGroup>
               <StandardInput
                 labelTitle='Instagram Link'
                 inputType='text'
@@ -241,6 +244,7 @@ function ManageCompanyPage() {
                 inputName='instagramUrl'
                 refTemp={register}
                 isThereCompany={isThereCompany && true}
+                defaultVal={companyData.instagramUrl}
                 emptyControl={false}
               />
             </FormGroup>
@@ -252,6 +256,7 @@ function ManageCompanyPage() {
                 inputName='twitterUrl'
                 refTemp={register}
                 isThereCompany={isThereCompany && true}
+                defaultVal={companyData.twitterUrl}
                 emptyControl={false}
               />
             </FormGroup>
@@ -263,6 +268,7 @@ function ManageCompanyPage() {
                 inputName='facebookUrl'
                 refTemp={register}
                 isThereCompany={isThereCompany && true}
+                defaultVal={companyData.facebookUrl}
                 emptyControl={false}
               />
             </FormGroup>
@@ -274,9 +280,10 @@ function ManageCompanyPage() {
                 inputName='websiteUrl'
                 refTemp={register}
                 isThereCompany={isThereCompany && true}
+                defaultVal={companyData.websiteUrl}
                 emptyControl={false}
               />
-            </FormGroup> */}
+            </FormGroup>
           </>
         )
       case 1:
@@ -395,3 +402,19 @@ export default ManageCompanyPage
 // <input name='exampleRequired' ref={register({ required: true })} />
 // {/* errors will return when field validation fails  */}
 // {errors.exampleRequired && <span>This field is required</span>}
+
+
+       
+
+// function handleImage(e) {
+//   const file = e.target.files[0]
+//   setLogo(file)
+//   if (file !== undefined) {
+//     setCompanyData((prev) => {
+//       return {
+//         ...prev,
+//         logoUrl: URL.createObjectURL(file),
+//       }
+//     })
+//   }
+// }

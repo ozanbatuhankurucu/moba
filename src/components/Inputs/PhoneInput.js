@@ -7,11 +7,12 @@ function PhoneInputCustom({
   labelTitle,
   isRequired,
   inputName,
-  value,
+  defaultVal,
   onChangeFunc,
   isThereCompany,
   emptyControl,
   emptyErrorMessage,
+  refTemp
 }) {
   return (
     <>
@@ -26,9 +27,10 @@ function PhoneInputCustom({
         }
         name={inputName}
         //istenilen ulkeleri ekleyebiliyoruz buraya.
+        ref={refTemp}
         onlyCountries={['tr']}
         country={'tr'}
-        value={value}
+        value={defaultVal}
         onChange={onChangeFunc}
         disabled={isThereCompany && true}
       />

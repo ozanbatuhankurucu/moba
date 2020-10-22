@@ -19,61 +19,6 @@
               .star {
                 color: #ff4c01;
               }
-              .image-row {
-                @extend %day-and-time-picker;
-                padding: 0;
-                .company-logo{
-                 object-fit: cover;
-                }
-                .disabled-span{
-                  background-color: #E3E3E3;
-                  padding: 5px 10px;
-                  cursor: not-allowed;
-                &:hover{
-                  font-weight: bold;
-                }
-                }
-                input[type="file"] {
-                  position: absolute;
-                  right: -9999px;
-                  visibility: hidden;
-                  opacity: 0;
-                }
-               
-                label {
-                  position: relative;
-                  padding: 1rem 3rem;
-                  display: inline-block;
-                  text-align: center;
-                  overflow: hidden;
-                  svg {
-                    height: 45px;
-                    left: 0;
-                    position: absolute;
-                    top: 0; 
-                    width: 100%; 
-                  }
-                  rect {
-                    fill: none;
-                    stroke:  #0c8fda;
-                    stroke-width: 2;
-                    stroke-dasharray: 422, 0;
-                    transition: all 0.35s linear;
-                  }
-                
-                }
-                label:hover {
-                 
-                  font-weight: 900;
-                  letter-spacing: 1px;
-                  
-                  rect {
-                    stroke-width: 5;
-                    stroke-dasharray: 15, 310;
-                    stroke-dashoffset: 48;
-                    transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
-                  }
-                }
-              }
+            
         }
     }
