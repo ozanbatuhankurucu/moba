@@ -14,7 +14,7 @@ import {
 //Inputs
 import StandardInput from '../../components/Inputs/StandardInput'
 //Photo Picker
-import PickPhoto from '../../components/PhotoPicker/PickPhoto';
+import PickPhoto from '../../components/PhotoPicker/PickPhoto'
 //Use Hook Form
 import { useForm } from 'react-hook-form'
 //Storage Service
@@ -27,7 +27,8 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-
+//Country state city
+import csc from 'country-state-city'
 //Scss Imports
 import './managecompany.scss'
 
@@ -49,13 +50,18 @@ const useStyles = makeStyles((theme) => ({
 
 function ManageCompanyPage() {
   const [isThereCompany, setIsThereCompany] = useState(null)
-  const [spinnerControl, setSpinnerControl] = useState(false)
-  const [logo, setLogo] = useState()
-  const [image, setImage] = useState();
 
- 
+  const [spinnerControl, setSpinnerControl] = useState(false)
+
+  const [logo, setLogo] = useState()
+  const [selectedCountry, setSelectedCountry] = useState()
+  const [selectedCity, setSelectedCity] = useState()
+  const [selectedCityOfState, setSelectedCityOfState] = useState()
+  console.log(selectedCountry)
+  console.log(selectedCity)
+  console.log(selectedCityOfState)
   const { register, handleSubmit, watch, errors } = useForm()
-  console.log(watch('phone'))
+
   const [companyData, setCompanyData] = useState({
     companyName: '',
     email: '',
@@ -67,12 +73,7 @@ function ManageCompanyPage() {
     facebookUrl: '',
     websiteUrl: '',
   })
-  const [errorMessages, setErrors] = useState({
-    companyNameEMessage: 'Şirket ismini lütfen boş geçmeyiniz!',
-    emailEMessage: 'Şirket emailini lütfen boş geçmeyiniz!',
-    descriptionEMessage: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
-    phoneEMessage: 'Şirket telefonunu lütfen boş geçmeyiniz!',
-  })
+
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
   const steps = getSteps()
@@ -125,22 +126,24 @@ function ManageCompanyPage() {
     }
   }
 
- 
   console.log(Boolean(errors.companyName))
   console.log(errors)
   console.log(errors.email)
   console.log(errors.email === false ? 'false im' : 'degilim')
   const handleNext = () => {
     if (activeStep === 0) {
-      if (
-        watch('companyName') !== '' &&
-        watch('email') !== '' && 
-        errors.email === undefined &&
-        watch('description') !== '' &&
-        watch('phone') !== '' 
-      ) {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1)
-      }
+      setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      // if (
+      //   watch('companyName') !== '' &&
+      //   watch('email') !== '' &&
+      //   errors.email === undefined &&
+      //   watch('description') !== '' &&
+      //   watch('phone') !== ''
+      // ) {
+
+      // }
+    } else if (activeStep === 1) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1)
     }
   }
 
@@ -152,19 +155,18 @@ function ManageCompanyPage() {
     setActiveStep(0)
   }
   function getSteps() {
-    return ['Şirket Bilgileri', 'Create an ad group', 'Create an ad']
+    return ['Şirket Bilgileri', 'Adres Bilgileri', 'Create an ad']
   }
 
   function handleImage(e) {
     console.log(e.target.files[0])
-    if(e.target.files[0]!==undefined){
-      setLogo(e.target.files[0]);
+    if (e.target.files[0] !== undefined) {
+      setLogo(e.target.files[0])
     }
     //setImage(URL.createObjectURL(e.target.files[0]));
-   
-
   }
-
+  console.log(csc.getCountryById('223'))
+  console.log(selectedCountry)
   function getStepContent(step) {
     switch (step) {
       case 0:
@@ -231,11 +233,15 @@ function ManageCompanyPage() {
                 emptyControl={errors.phone}
               />
             </FormGroup>
-            
-           <FormGroup>
-           <PickPhoto handleImage={handleImage} imageUrl={logo!==undefined ? URL.createObjectURL(logo) : null} labelTitle='Şirket Logosu' isRequired={false}/>   
-             
-            </FormGroup> 
+
+            <FormGroup>
+              <PickPhoto
+                handleImage={handleImage}
+                imageUrl={logo !== undefined ? URL.createObjectURL(logo) : null}
+                labelTitle='Şirket Logosu'
+                isRequired={false}
+              />
+            </FormGroup>
             <FormGroup>
               <StandardInput
                 labelTitle='Instagram Link'
@@ -287,7 +293,66 @@ function ManageCompanyPage() {
           </>
         )
       case 1:
-        return 'An ad group contains one or more ads which target a shared set of keywords.'
+        return (
+          <>
+            <div>
+              <select
+                onChange={(x) =>
+                  setSelectedCountry(new Object(JSON.parse(x.target.value)))
+                }
+              >
+                   <option selected='selected'>Ülke seçiniz</option>
+                  <option value={JSON.stringify(csc.getCountryById('223'))}>{csc.getCountryById('223').name}</option>
+              
+              </select>
+
+              {/* <select
+                onChange={(x) => {
+                  console.log(typeof x.target.value)
+                  console.log(x.target.value)
+                  console.log(x.target.value.id)
+                  if (new Object(JSON.parse(x.target.value)).id !== undefined) {
+                    console.log(x.id)
+                    setSelectedCountry(new Object(JSON.parse(x.target.value)))
+                  }
+                }}
+              >
+                <option selected='selected'>Ülke seçiniz</option>
+                <option value={JSON.stringify(csc.getCountryById('223'))}>
+                  {csc.getCountryById('223').name}
+                </option>
+              </select> */}
+
+              <select
+                onChange={(x) =>
+                  setSelectedCity(new Object(JSON.parse(x.target.value)))
+                }
+              >
+                {selectedCountry !== undefined
+                  ? csc
+                      .getStatesOfCountry('223')
+                      .map((x) => (
+                        <option value={JSON.stringify(x)}> {x.name}</option>
+                      ))
+                  : null}
+              </select>
+
+              <select
+                onChange={(x) =>
+                  setSelectedCityOfState(new Object(JSON.parse(x.target.value)))
+                }
+              >
+                {selectedCity !== undefined
+                  ? csc
+                      .getCitiesOfState(selectedCity.id)
+                      .map((x) => (
+                        <option value={JSON.stringify(x)}> {x.name}</option>
+                      ))
+                  : null}
+              </select>
+            </div>
+          </>
+        )
       case 2:
         return `Try out different ad text to see what brings in the most customers,
                 and learn how to enhance your ads using features like ad extensions.
@@ -302,7 +367,6 @@ function ManageCompanyPage() {
     getUserCompany()
   }, [])
   console.log(activeStep)
-  console.log(errorMessages)
   console.log(companyData)
 
   return isThereCompany === null ? (
@@ -402,9 +466,6 @@ export default ManageCompanyPage
 // <input name='exampleRequired' ref={register({ required: true })} />
 // {/* errors will return when field validation fails  */}
 // {errors.exampleRequired && <span>This field is required</span>}
-
-
-       
 
 // function handleImage(e) {
 //   const file = e.target.files[0]

@@ -31,7 +31,7 @@ function StandardInput({
         disabled={isThereCompany}
         defaultValue={defaultVal}
       />
-      {emptyControl ? <mark>{emptyControl.message}</mark> : null}
+      {emptyControl ? <p style={{color:'red'}}>{emptyControl.message}</p> : null}
 
     </>
   )

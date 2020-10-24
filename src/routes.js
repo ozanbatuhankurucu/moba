@@ -31,14 +31,14 @@ import ConfirmedOrdersPage from "./pages/ManageOrdersPage/ConfirmedOrdersPage";
 var routes = [
   {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "Kontrol Paneli",
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/admin",
   },
   {
     path: "/manage-company",
-    name: "Manage Company",
+    name: "Şirketi Yönet",
     icon: "nc-icon nc-briefcase-24",
     component: ManageCompanyPage,
     layout: "/admin",
@@ -46,7 +46,7 @@ var routes = [
   {
     collapse: true,
     path: "/order",
-    name: "Order",
+    name: "Sipariş",
     icon: "nc-icon nc-cart-simple",
     state: "openComponents",
     views:[
@@ -76,7 +76,7 @@ var routes = [
   },
   {
     path: "/manage-menus",
-    name: "Manage Menus",
+    name: "Menüleri Yönet",
     icon: "nc-icon nc-chart-pie-36",
     component: ManageMenusPage,
     layout: "/admin",
