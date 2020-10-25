@@ -78,6 +78,10 @@ function ManageCompanyPage() {
     twitterUrl: '',
     facebookUrl: '',
     websiteUrl: '',
+    ownerName: '',
+    ownerSurname: '',
+    ownerPhone: '',
+    ownerEmail: '',
   })
 
   const classes = useStyles()
@@ -169,6 +173,25 @@ function ManageCompanyPage() {
         })
         setActiveStep((prevActiveStep) => prevActiveStep + 1)
       }
+    } else if (activeStep === 2) {
+      if (
+        watch('ownerName') !== '' &&
+        watch('ownerSurname') !== '' &&
+        watch('ownerPhone') !== '' &&
+        watch('ownerEmail') !== '' &&
+        errors.ownerEmail === undefined
+      ) {
+        setCompanyData((prev) => {
+          return {
+            ...prev,
+            ownerName: watch('ownerName'),
+            ownerSurname: watch('ownerSurname'),
+            ownerPhone: watch('ownerPhone'),
+            ownerEmail: watch('ownerEmail'),
+          }
+        })
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      }
     }
   }
   console.log(selectedCityOfState)
@@ -184,6 +207,19 @@ function ManageCompanyPage() {
         }
       })
       setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    } else if (activeStep === 2) {
+      setCompanyData((prev) => {
+        return {
+          ...prev,
+          ownerName: watch('ownerName'),
+          ownerSurname: watch('ownerSurname'),
+          ownerPhone: watch('ownerPhone'),
+          ownerEmail: watch('ownerEmail'),
+        }
+      })
+      setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    } else if (activeStep === 3) {
+      setActiveStep((prevActiveStep) => prevActiveStep - 1)
     }
   }
 
@@ -191,7 +227,12 @@ function ManageCompanyPage() {
     setActiveStep(0)
   }
   function getSteps() {
-    return ['Şirket Bilgileri', 'Şirket Adres', 'Create an ad']
+    return [
+      'Şirket Bilgileri',
+      'Şirket Adres',
+      'Yetkili Bilgileri',
+      'Herangi bir alan',
+    ]
   }
 
   function handleImage(e) {
@@ -280,58 +321,72 @@ function ManageCompanyPage() {
                 isRequired={false}
               />
             </FormGroup>
-            <FormGroup>
-              <StandardInput
-                labelTitle='Instagram Link'
-                maxLen={2000}
-                inputType='text'
-                isRequired={false}
-                inputName='instagramUrl'
-                refTemp={register}
-                isThereCompany={isThereCompany && true}
-                defaultVal={companyData.instagramUrl}
-                emptyControl={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <StandardInput
-                labelTitle='Twitter Link'
-                maxLen={2000}
-                inputType='text'
-                isRequired={false}
-                inputName='twitterUrl'
-                refTemp={register}
-                isThereCompany={isThereCompany && true}
-                defaultVal={companyData.twitterUrl}
-                emptyControl={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <StandardInput
-                labelTitle='Facebook Link'
-                maxLen={2000}
-                inputType='text'
-                isRequired={false}
-                inputName='facebookUrl'
-                refTemp={register}
-                isThereCompany={isThereCompany && true}
-                defaultVal={companyData.facebookUrl}
-                emptyControl={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <StandardInput
-                labelTitle='Website Link'
-                maxLen={2000}
-                inputType='text'
-                isRequired={false}
-                inputName='websiteUrl'
-                refTemp={register}
-                isThereCompany={isThereCompany && true}
-                defaultVal={companyData.websiteUrl}
-                emptyControl={false}
-              />
-            </FormGroup>
+            <Container>
+              <Row>
+                <Col className='p-0 pr-3' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Instagram Link'
+                      maxLen={2000}
+                      inputType='text'
+                      isRequired={false}
+                      inputName='instagramUrl'
+                      refTemp={register}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.instagramUrl}
+                      emptyControl={false}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col className='p-0' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Twitter Link'
+                      maxLen={2000}
+                      inputType='text'
+                      isRequired={false}
+                      inputName='twitterUrl'
+                      refTemp={register}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.twitterUrl}
+                      emptyControl={false}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row>
+                <Col className='p-0 pr-3' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Facebook Link'
+                      maxLen={2000}
+                      inputType='text'
+                      isRequired={false}
+                      inputName='facebookUrl'
+                      refTemp={register}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.facebookUrl}
+                      emptyControl={false}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col className='p-0' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Website Link'
+                      maxLen={2000}
+                      inputType='text'
+                      isRequired={false}
+                      inputName='websiteUrl'
+                      refTemp={register}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.websiteUrl}
+                      emptyControl={false}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+            </Container>
           </>
         )
       case 1:
@@ -435,10 +490,94 @@ function ManageCompanyPage() {
         )
 
       case 2:
-        return `Try out different ad text to see what brings in the most customers,
-                and learn how to enhance your ads using features like ad extensions.
-                If you run into any problems with your ads, find out how to tell if
-                they're running and how to resolve approval issues.`
+        return (
+          <>
+            <Container>
+              <Row>
+                <Col className='p-0 pr-3' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Yetkili Adı'
+                      maxLen={100}
+                      inputType='text'
+                      isRequired={true}
+                      inputName='ownerName'
+                      refTemp={register({
+                        required: 'Yetkili adını lütfen boş geçmeyiniz!',
+                      })}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.ownerName}
+                      emptyControl={errors.ownerName}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col className='p-0' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Yetkili Soyadı'
+                      maxLen={100}
+                      inputType='text'
+                      isRequired={true}
+                      inputName='ownerSurname'
+                      refTemp={register({
+                        required: 'Yetkili soyadını lütfen boş geçmeyiniz!',
+                      })}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.ownerSurname}
+                      emptyControl={errors.ownerSurname}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row>
+                <Col className='p-0 pr-3' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Yetkili Telefon'
+                      maxLen={100}
+                      inputType='text'
+                      isRequired={true}
+                      inputName='ownerPhone'
+                      refTemp={register({
+                        required: 'Yetkili telefonunu lütfen boş geçmeyiniz!',
+                      })}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.ownerPhone}
+                      emptyControl={errors.ownerPhone}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col className='p-0' xl='6' lg='6' md='6' sm='6' xs='6'>
+                  <FormGroup>
+                    <StandardInput
+                      labelTitle='Yetkili Email'
+                      maxLen={255}
+                      inputType='text'
+                      isRequired={true}
+                      inputName='ownerEmail'
+                      refTemp={register({
+                        required: 'Şirket emailini lütfen boş geçmeyiniz!',
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: 'Geçersiz email adresi!',
+                        },
+                      })}
+                      isThereCompany={isThereCompany && true}
+                      defaultVal={companyData.ownerEmail}
+                      emptyControl={errors.ownerEmail}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+            </Container>
+          </>
+        )
+      case 3:
+        return (
+          <>
+            <div>case 3</div>
+          </>
+        )
       default:
         return 'Unknown step'
     }
@@ -500,6 +639,7 @@ function ManageCompanyPage() {
                               <Button
                                 variant='contained'
                                 color='primary'
+                                type='submit'
                                 className={classes.button}
                                 onClick={createCompany}
                               >
