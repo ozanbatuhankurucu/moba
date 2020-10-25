@@ -10,6 +10,8 @@ import {
   Button,
   Spinner,
   Alert,
+  Input,
+  Label,
 } from 'reactstrap'
 //Inputs
 import StandardInput from '../../components/Inputs/StandardInput'
@@ -27,6 +29,7 @@ import StepLabel from '@material-ui/core/StepLabel'
 import StepContent from '@material-ui/core/StepContent'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+
 //Country state city
 import csc from 'country-state-city'
 //Scss Imports
@@ -53,9 +56,13 @@ function ManageCompanyPage() {
 
   const [spinnerControl, setSpinnerControl] = useState(false)
 
-  const [logo, setLogo] = useState()
-  const [selectedCountry, setSelectedCountry] = useState()
-  const [selectedCity, setSelectedCity] = useState()
+  const [logo, setLogo] = useState(null)
+  const [selectedCountry, setSelectedCountry] = useState(
+    csc.getCountryById('223')
+  )
+  const [selectedCity, setSelectedCity] = useState(
+    csc.getStatesOfCountry('223')[0]
+  )
   const [selectedCityOfState, setSelectedCityOfState] = useState()
   console.log(selectedCountry)
   console.log(selectedCity)
@@ -67,7 +74,6 @@ function ManageCompanyPage() {
     email: '',
     description: '',
     phone: '',
-    logoUrl: '',
     instagramUrl: '',
     twitterUrl: '',
     facebookUrl: '',
@@ -77,7 +83,6 @@ function ManageCompanyPage() {
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
   const steps = getSteps()
-
   const onSubmit = (data) => {
     console.log(data)
     setCompanyData(data)
@@ -125,37 +130,68 @@ function ManageCompanyPage() {
       alert('Şirketiniz oluşturulamamıştır!')
     }
   }
-
-  console.log(Boolean(errors.companyName))
-  console.log(errors)
-  console.log(errors.email)
-  console.log(errors.email === false ? 'false im' : 'degilim')
+  console.log(watch('phone'))
   const handleNext = () => {
     if (activeStep === 0) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1)
-      // if (
-      //   watch('companyName') !== '' &&
-      //   watch('email') !== '' &&
-      //   errors.email === undefined &&
-      //   watch('description') !== '' &&
-      //   watch('phone') !== ''
-      // ) {
-
-      // }
+      if (
+        watch('companyName') !== '' &&
+        watch('email') !== '' &&
+        errors.email === undefined &&
+        watch('description') !== '' &&
+        watch('phone') !== ''
+      ) {
+        console.log('icerdeyim')
+        setCompanyData((prev) => {
+          console.log(prev)
+          return {
+            ...prev,
+            companyName: watch('companyName'),
+            email: watch('email'),
+            description: watch('description'),
+            phone: watch('phone'),
+            instagramUrl: watch('instagramUrl'),
+            twitterUrl: watch('twitterUrl'),
+            facebookUrl: watch('facebookUrl'),
+            websiteUrl: watch('websiteUrl'),
+          }
+        })
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      }
     } else if (activeStep === 1) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      if (watch('cityOfState') !== '' && watch('detailedAddress') !== '') {
+        setCompanyData((prev) => {
+          return {
+            ...prev,
+            detailedAddress: watch('detailedAddress'),
+            city: selectedCity.name,
+            cityOfState: selectedCityOfState.name,
+          }
+        })
+        setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      }
     }
   }
-
+  console.log(selectedCityOfState)
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    if (activeStep === 1) {
+      setCompanyData((prev) => {
+        return {
+          ...prev,
+          detailedAddress: watch('detailedAddress'),
+          city: selectedCity.name,
+          cityOfState:
+            selectedCityOfState !== undefined ? selectedCityOfState.name : '',
+        }
+      })
+      setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    }
   }
 
   const handleReset = () => {
     setActiveStep(0)
   }
   function getSteps() {
-    return ['Şirket Bilgileri', 'Adres Bilgileri', 'Create an ad']
+    return ['Şirket Bilgileri', 'Şirket Adres', 'Create an ad']
   }
 
   function handleImage(e) {
@@ -165,8 +201,7 @@ function ManageCompanyPage() {
     }
     //setImage(URL.createObjectURL(e.target.files[0]));
   }
-  console.log(csc.getCountryById('223'))
-  console.log(selectedCountry)
+  console.log(watch('cityOfState'))
   function getStepContent(step) {
     switch (step) {
       case 0:
@@ -175,6 +210,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Şirket Adı'
+                maxLen={40}
                 inputType='text'
                 isRequired={true}
                 inputName='companyName'
@@ -190,6 +226,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Şirket Email'
+                maxLen={255}
                 inputType='text'
                 isRequired={true}
                 inputName='email'
@@ -208,6 +245,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Açıklama'
+                maxLen={300}
                 inputType='textarea'
                 isRequired={true}
                 inputName='description'
@@ -222,9 +260,10 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Telefon'
-                inputType='tel'
                 isRequired={true}
+                maxLen={15}
                 inputName='phone'
+                inputType='tel'
                 refTemp={register({
                   required: 'Şirket telefonunu lütfen boş geçmeyiniz!',
                 })}
@@ -233,11 +272,10 @@ function ManageCompanyPage() {
                 emptyControl={errors.phone}
               />
             </FormGroup>
-
             <FormGroup>
               <PickPhoto
                 handleImage={handleImage}
-                imageUrl={logo !== undefined ? URL.createObjectURL(logo) : null}
+                imageUrl={logo !== null ? URL.createObjectURL(logo) : null}
                 labelTitle='Şirket Logosu'
                 isRequired={false}
               />
@@ -245,6 +283,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Instagram Link'
+                maxLen={2000}
                 inputType='text'
                 isRequired={false}
                 inputName='instagramUrl'
@@ -257,6 +296,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Twitter Link'
+                maxLen={2000}
                 inputType='text'
                 isRequired={false}
                 inputName='twitterUrl'
@@ -269,6 +309,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Facebook Link'
+                maxLen={2000}
                 inputType='text'
                 isRequired={false}
                 inputName='facebookUrl'
@@ -281,6 +322,7 @@ function ManageCompanyPage() {
             <FormGroup>
               <StandardInput
                 labelTitle='Website Link'
+                maxLen={2000}
                 inputType='text'
                 isRequired={false}
                 inputName='websiteUrl'
@@ -295,64 +337,103 @@ function ManageCompanyPage() {
       case 1:
         return (
           <>
-            <div>
-              <select
+            <FormGroup>
+              <Label className='lable-title' for='exampleName'>
+                Ülke <span className='star'>*</span>
+              </Label>
+              <Input
+                type='select'
                 onChange={(x) =>
                   setSelectedCountry(new Object(JSON.parse(x.target.value)))
                 }
               >
-                   <option selected='selected'>Ülke seçiniz</option>
-                  <option value={JSON.stringify(csc.getCountryById('223'))}>{csc.getCountryById('223').name}</option>
-              
-              </select>
-
-              {/* <select
-                onChange={(x) => {
-                  console.log(typeof x.target.value)
-                  console.log(x.target.value)
-                  console.log(x.target.value.id)
-                  if (new Object(JSON.parse(x.target.value)).id !== undefined) {
-                    console.log(x.id)
-                    setSelectedCountry(new Object(JSON.parse(x.target.value)))
-                  }
-                }}
-              >
-                <option selected='selected'>Ülke seçiniz</option>
-                <option value={JSON.stringify(csc.getCountryById('223'))}>
-                  {csc.getCountryById('223').name}
+                <option value={JSON.stringify(selectedCountry)}>
+                  {selectedCountry.name}
                 </option>
-              </select> */}
-
-              <select
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label className='lable-title' for='exampleName'>
+                Şehir <span className='star'>*</span>
+              </Label>
+              <Input
+                type='select'
                 onChange={(x) =>
                   setSelectedCity(new Object(JSON.parse(x.target.value)))
                 }
+                defaultValue={JSON.stringify(selectedCity)}
               >
-                {selectedCountry !== undefined
-                  ? csc
-                      .getStatesOfCountry('223')
-                      .map((x) => (
-                        <option value={JSON.stringify(x)}> {x.name}</option>
-                      ))
-                  : null}
-              </select>
-
-              <select
-                onChange={(x) =>
-                  setSelectedCityOfState(new Object(JSON.parse(x.target.value)))
+                {csc.getStatesOfCountry(selectedCountry.id).map((x, index) => (
+                  <option key={index} value={JSON.stringify(x)}>
+                    {x.name}
+                  </option>
+                ))}
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label className='lable-title' for='exampleName'>
+                İlçe <span className='star'>*</span>
+              </Label>
+              <Input
+                type='select'
+                name='cityOfState'
+                innerRef={
+                  companyData.cityOfState !== undefined &&
+                  companyData.cityOfState !== ''
+                    ? null
+                    : register({
+                        required: 'İlçe alanını boş geçmeyiniz!',
+                      })
                 }
+                defaultValue={
+                  selectedCityOfState !== undefined
+                    ? JSON.stringify(selectedCityOfState)
+                    : null
+                }
+                onChange={(x) => {
+                  setSelectedCityOfState(JSON.parse(x.target.value))
+                }}
               >
+                {selectedCityOfState !== undefined ? (
+                  <option value='' selected disabled hidden>
+                    {selectedCityOfState.name}
+                  </option>
+                ) : (
+                  <option value='' selected disabled hidden>
+                    İlçe seçiniz
+                  </option>
+                )}
+
                 {selectedCity !== undefined
-                  ? csc
-                      .getCitiesOfState(selectedCity.id)
-                      .map((x) => (
-                        <option value={JSON.stringify(x)}> {x.name}</option>
-                      ))
+                  ? csc.getCitiesOfState(selectedCity.id).map((x, index) => (
+                      <option key={index} value={JSON.stringify(x)}>
+                        {x.name}
+                      </option>
+                    ))
                   : null}
-              </select>
-            </div>
+              </Input>
+              {errors.cityOfState ? (
+                <p style={{ color: 'red' }}>{errors.cityOfState.message}</p>
+              ) : null}
+            </FormGroup>
+            <FormGroup>
+              <StandardInput
+                labelTitle='Detaylı Adres'
+                maxLen={300}
+                inputType='textarea'
+                isRequired={true}
+                inputName='detailedAddress'
+                refTemp={register({
+                  required: 'Adres alanını boş geçmeyiniz!',
+                })}
+                isThereCompany={isThereCompany && true}
+                defaultVal={companyData.detailedAddress}
+                emptyControl={errors.detailedAddress}
+              />
+            </FormGroup>
           </>
         )
+
       case 2:
         return `Try out different ad text to see what brings in the most customers,
                 and learn how to enhance your ads using features like ad extensions.
@@ -366,8 +447,12 @@ function ManageCompanyPage() {
   useEffect(() => {
     getUserCompany()
   }, [])
+  console.log(errors)
   console.log(activeStep)
   console.log(companyData)
+  console.log(selectedCountry)
+  console.log(selectedCity)
+  console.log(selectedCityOfState)
 
   return isThereCompany === null ? (
     <div className='content d-flex justify-content-center align-items-center'>

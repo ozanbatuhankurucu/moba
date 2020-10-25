@@ -16,6 +16,7 @@
     "react-country-region-selector": "^3.0.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.9.4",
+    "react-input-mask": "^2.0.4",
     "react-phone-input-2": "^2.13.8",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
