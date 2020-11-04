@@ -130,8 +130,7 @@ class Header extends React.Component {
   console.log(user);
   this.setState({
     userName:user.username
-  })
-  
+  }) 
 }
   render() {
     return (
