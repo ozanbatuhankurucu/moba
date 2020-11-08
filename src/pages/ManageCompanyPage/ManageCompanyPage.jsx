@@ -22,7 +22,7 @@ import PickPhoto from '../../components/PhotoPicker/PickPhoto'
 //Use Hook Form
 import { useForm } from 'react-hook-form'
 //Storage Service
-import uploadPhoto from '../../helperFunctions/asyncFunctions/storageService'
+import uploadFile from '../../helperFunctions/asyncFunctions/storageService'
 //Material UI
 import { makeStyles } from '@material-ui/core/styles'
 import Stepper from '@material-ui/core/Stepper'
@@ -54,15 +54,33 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 function ManageCompanyPage() {
+  const [companyType, setCompanyType] = useState(null)
   const [companyInfo, setCompanyInfo] = useState({
     companyName: '',
     email: '',
     description: '',
     phone: '',
+    companyLogo: null,
     instagramUrl: '',
     twitterUrl: '',
     facebookUrl: '',
     websiteUrl: '',
+  })
+  const [companyAddress, setCompanyAddress] = useState({
+    city: '',
+    cityOfState: '',
+    detailedAddress: '',
+  })
+  const [companyOwnerInfo, setCompanyOwnerInfo] = useState({
+    ownerName: '',
+    ownerSurname: '',
+    ownerPhone: '',
+    ownerEmail: '',
+  })
+  const [companyDocuments, setCompanyDocuments] = useState({
+    taxNum: '',
+    taxAdministration: '',
+    taxPlate: null,
   })
   const [isThereCompany, setIsThereCompany] = useState(null)
 
@@ -74,29 +92,27 @@ function ManageCompanyPage() {
   )
   const [selectedCity, setSelectedCity] = useState()
   const [selectedCityOfState, setSelectedCityOfState] = useState()
-  console.log(selectedCountry)
-  console.log(selectedCity)
-  console.log(selectedCityOfState)
+  console.log(companyDocuments)
+  console.log(companyOwnerInfo)
+  console.log(companyAddress)
+  console.log(companyInfo)
   const { register, handleSubmit, watch, errors } = useForm()
 
-  const [companyAddress, setCompanyAddress] = useState({
-    city: '',
-    cityOfState: '',
-    detailedAddress: '',
-  })
-  const [companyOwnerInfo,setCompanyOwnerInfo] = useState()
   const classes = useStyles()
   const [activeStep, setActiveStep] = useState(0)
   const steps = getSteps()
+
   const onSubmit = (data) => {
+    console.log(data)
     if (activeStep === 0) {
       setCompanyInfo(data)
-      console.log(data)
     } else if (activeStep === 1) {
       console.log(data)
       setCompanyAddress(data)
-    }else if(activeStep ===2){
-
+    } else if (activeStep === 2) {
+      setCompanyOwnerInfo(data)
+    } else if (activeStep === 3) {
+      setCompanyDocuments(data)
     }
     handleNext()
   }
@@ -122,10 +138,9 @@ function ManageCompanyPage() {
 
   const createCompany = async (e) => {
     e.preventDefault()
-
     setSpinnerControl(true)
     console.log('sirket yok')
-    let url = await uploadPhoto(logo)
+    let url = await uploadFile(logo)
     console.log(url)
     companyAddress.isApproved = false
     companyAddress.logoUrl = url
@@ -136,8 +151,6 @@ function ManageCompanyPage() {
       })
       console.log(result)
       setSpinnerControl(false)
-      setIsThereCompany(true)
-      setCompanyAddress(result.data.createCompany)
     } catch (err) {
       console.log(err)
       alert('Şirketiniz oluşturulamamıştır!')
@@ -158,7 +171,8 @@ function ManageCompanyPage() {
       'Şirket Bilgileri',
       'Şirket Adres',
       'Yetkili Bilgileri',
-      'Herangi bir alan',
+      'Belgeler',
+      'Banka Bilgileri',
     ]
   }
 
@@ -168,6 +182,42 @@ function ManageCompanyPage() {
       setLogo(e.target.files[0])
     }
     //setImage(URL.createObjectURL(e.target.files[0]));
+  }
+
+  function NextBackButtons() {
+    return (
+      <div className={classes.actionsContainer}>
+        <div>
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            className={classes.button}
+          >
+            Geri
+          </Button>
+          {activeStep === steps.length - 1 ? (
+            <Button
+              variant='contained'
+              color='primary'
+              className={classes.button}
+              onClick={createCompany}
+            >
+              ŞİRKET OLUŞTUR
+            </Button>
+          ) : (
+            <Button
+              variant='contained'
+              color='primary'
+              type='submit'
+              // onClick={handleNext}
+              className={classes.button}
+            >
+              ILERI
+            </Button>
+          )}
+        </div>
+      </div>
+    )
   }
   console.log(watch('cityOfState'))
   function getStepContent(step) {
@@ -187,7 +237,6 @@ function ManageCompanyPage() {
                     required: 'Şirket ismini lütfen boş geçmeyiniz!',
                   })}
                   defaultVal={companyInfo.companyName}
-                  isThereCompany={isThereCompany && true}
                   emptyControl={errors.companyName}
                 />
               </FormGroup>
@@ -206,7 +255,6 @@ function ManageCompanyPage() {
                       message: 'Geçersiz email adresi!',
                     },
                   })}
-                  isThereCompany={isThereCompany && true}
                   defaultVal={companyInfo.email}
                   emptyControl={errors.email}
                 />
@@ -221,7 +269,6 @@ function ManageCompanyPage() {
                   refTemp={register({
                     required: 'Şirket açıklamasını lütfen boş geçmeyiniz!',
                   })}
-                  isThereCompany={isThereCompany && true}
                   defaultVal={companyInfo.description}
                   emptyControl={errors.description}
                 />
@@ -245,6 +292,8 @@ function ManageCompanyPage() {
                   handleImage={handleImage}
                   imageUrl={logo !== null ? URL.createObjectURL(logo) : null}
                   labelTitle='Şirket Logosu'
+                  inputName='companyLogo'
+                  refTemp={register}
                   isRequired={false}
                 />
               </FormGroup>
@@ -259,7 +308,6 @@ function ManageCompanyPage() {
                         isRequired={false}
                         inputName='instagramUrl'
                         refTemp={register}
-                        isThereCompany={isThereCompany && true}
                         defaultVal={companyInfo.instagramUrl}
                         emptyControl={false}
                       />
@@ -274,7 +322,6 @@ function ManageCompanyPage() {
                         isRequired={false}
                         inputName='twitterUrl'
                         refTemp={register}
-                        isThereCompany={isThereCompany && true}
                         defaultVal={companyInfo.twitterUrl}
                         emptyControl={false}
                       />
@@ -291,7 +338,6 @@ function ManageCompanyPage() {
                         isRequired={false}
                         inputName='facebookUrl'
                         refTemp={register}
-                        isThereCompany={isThereCompany && true}
                         defaultVal={companyInfo.facebookUrl}
                         emptyControl={false}
                       />
@@ -306,7 +352,6 @@ function ManageCompanyPage() {
                         isRequired={false}
                         inputName='websiteUrl'
                         refTemp={register}
-                        isThereCompany={isThereCompany && true}
                         defaultVal={companyInfo.websiteUrl}
                         emptyControl={false}
                       />
@@ -445,41 +490,11 @@ function ManageCompanyPage() {
                   refTemp={register({
                     required: 'Adres alanını boş geçmeyiniz!',
                   })}
-                  isThereCompany={isThereCompany && true}
                   defaultVal={companyAddress.detailedAddress}
                   emptyControl={errors.detailedAddress}
                 />
               </FormGroup>
-              <div className={classes.actionsContainer}>
-                <div>
-                  <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    className={classes.button}
-                  >
-                    Geri
-                  </Button>
-                  {activeStep === steps.length - 1 ? (
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      className={classes.button}
-                      onClick={createCompany}
-                    >
-                      ŞİRKET OLUŞTUR
-                    </Button>
-                  ) : (
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      type='submit'
-                      className={classes.button}
-                    >
-                      ILERI
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <NextBackButtons />
             </form>
           </>
         )
@@ -501,8 +516,7 @@ function ManageCompanyPage() {
                         refTemp={register({
                           required: 'Yetkili adını lütfen boş geçmeyiniz!',
                         })}
-                        isThereCompany={isThereCompany && true}
-                        defaultVal={companyAddress.ownerName}
+                        defaultVal={companyOwnerInfo.ownerName}
                         emptyControl={errors.ownerName}
                       />
                     </FormGroup>
@@ -518,8 +532,7 @@ function ManageCompanyPage() {
                         refTemp={register({
                           required: 'Yetkili soyadını lütfen boş geçmeyiniz!',
                         })}
-                        isThereCompany={isThereCompany && true}
-                        defaultVal={companyAddress.ownerSurname}
+                        defaultVal={companyOwnerInfo.ownerSurname}
                         emptyControl={errors.ownerSurname}
                       />
                     </FormGroup>
@@ -528,18 +541,17 @@ function ManageCompanyPage() {
                 <Row>
                   <Col className='p-0 pr-3' xl='6' lg='6' md='6' sm='6' xs='6'>
                     <FormGroup>
-                      <StandardInput
+                      <MaskedPhoneInput
                         labelTitle='Yetkili Telefon'
-                        maxLen={100}
-                        inputType='text'
-                        isRequired={true}
                         inputName='ownerPhone'
+                        isRequired={true}
                         refTemp={register({
                           required: 'Yetkili telefonunu lütfen boş geçmeyiniz!',
                         })}
-                        isThereCompany={isThereCompany && true}
-                        defaultVal={companyAddress.ownerPhone}
+                        defaultVal={companyOwnerInfo.ownerPhone}
                         emptyControl={errors.ownerPhone}
+                        maskedInput={MaskedInput}
+                        inputMask='0 999 999 9999'
                       />
                     </FormGroup>
                   </Col>
@@ -558,55 +570,138 @@ function ManageCompanyPage() {
                             message: 'Geçersiz email adresi!',
                           },
                         })}
-                        isThereCompany={isThereCompany && true}
-                        defaultVal={companyAddress.ownerEmail}
+                        defaultVal={companyOwnerInfo.ownerEmail}
                         emptyControl={errors.ownerEmail}
                       />
                     </FormGroup>
                   </Col>
                 </Row>
+                <Row>
+                  <Col className='p-0'>
+                    <NextBackButtons />
+                  </Col>
+                </Row>
               </form>
-              <Row>
-                <Col className='p-0'>
-                  <div className={classes.actionsContainer}>
-                    <div>
-                      <Button
-                        disabled={activeStep === 0}
-                        onClick={handleBack}
-                        className={classes.button}
-                      >
-                        Geri
-                      </Button>
-                      {activeStep === steps.length - 1 ? (
-                        <Button
-                          variant='contained'
-                          color='primary'
-                          className={classes.button}
-                          onClick={createCompany}
-                        >
-                          ŞİRKET OLUŞTUR
-                        </Button>
-                      ) : (
-                        <Button
-                          variant='contained'
-                          color='primary'
-                          type='submit'
-                          className={classes.button}
-                        >
-                          ILERI
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </Col>
-              </Row>
             </Container>
           </>
         )
       case 3:
         return (
           <>
-            <div>case 3</div>
+            <Container>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Row>
+                  <Col className='p-0' xl='6' lg='6' md='6' sm='6' xs='6'>
+                    <Label className='lable-title' for='exampleName'>
+                      Şirket Türü <span className='star'>*</span>
+                    </Label>
+                    <Input
+                      type='select'
+                      onChange={(e) => setCompanyType(e.target.value)}
+                      name='companyType'
+                      innerRef={register({
+                        required: 'Şirket türünü lütfen boş geçmeyiniz!',
+                      })}
+                      defaultValue={companyType}
+                    >
+                      <option value='' selected disabled hidden>
+                        Şirket türü seçiniz
+                      </option>
+                      <option value='person'>Şahıs Şirket</option>
+                      <option value='anonym'>Anonim Şirket</option>
+                      <option value='limited'>Limited Şirket</option>
+                    </Input>
+                    {errors.companyType ? (
+                      <p style={{ color: 'red' }}>
+                        {errors.companyType.message}
+                      </p>
+                    ) : null}
+                  </Col>
+                  <Col xl='6' lg='6' md='6' sm='6' xs='6'>
+                    {companyType !== null ? (
+                      <FormGroup>
+                        <StandardInput
+                          labelTitle={
+                            companyType === 'person'
+                              ? 'TC Kimlik No'
+                              : 'Vergi Kimlik No'
+                          }
+                          maxLen={100}
+                          inputType='number'
+                          isRequired={true}
+                          inputName='taxNum'
+                          refTemp={register({
+                            required:
+                              companyType === 'person'
+                                ? 'TC Kimlik No alanını lütfen boş geçmeyiniz!'
+                                : 'Vergi Kimlik No alanını lütfen boş geçmeyiniz!',
+                          })}
+                          defaultVal={companyDocuments.taxNum}
+                          emptyControl={errors.taxNum}
+                        />
+                      </FormGroup>
+                    ) : null}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col className='px-0 py-2'>
+                    <StandardInput
+                      labelTitle='Vergi Dairesi'
+                      maxLen={500}
+                      inputType='text'
+                      isRequired={true}
+                      inputName='taxAdministration'
+                      refTemp={register({
+                        required:
+                          'Vergi dairesi alanını lütfen boş geçmeyiniz!',
+                      })}
+                      defaultVal={companyDocuments.taxAdministration}
+                      emptyControl={errors.taxAdministration}
+                    />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xl='6' lg='6' md='6' sm='6' xs='6'>
+                    <FormGroup>
+                      <Label className='lable-title' for='exampleName'>
+                        Vergi Levhası <span className='star'>*</span>
+                      </Label>
+                      <Input
+                        type='file'
+                        name='taxPlate'
+                        //onChange={uploadPdf}
+                        innerRef={register({
+                          required: 'Vergi levhasını yükleyiniz!',
+                        })}
+                      />
+                      {errors.taxPlate ? (
+                        <p style={{ color: 'red' }}>
+                          {errors.taxPlate.message}
+                        </p>
+                      ) : null}
+                    </FormGroup>
+                    <button type='submit'>Gonder</button>
+                  </Col>
+                  <Col xl='6' lg='6' md='6' sm='6' xs='6'>
+                    <FormGroup>
+                      <Label for='exampleFile'>File</Label>
+                      <Input type='file' name='file' />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col className='p-0'>
+                    <NextBackButtons />
+                  </Col>
+                </Row>
+              </form>
+            </Container>
+          </>
+        )
+      case 4:
+        return (
+          <>
+            <div>Banka Bilgileri</div>
           </>
         )
       default:
@@ -623,6 +718,21 @@ function ManageCompanyPage() {
   console.log(selectedCountry)
   console.log(selectedCity)
   console.log(selectedCityOfState)
+  const [pdf, setPdf] = useState(null)
+  async function handleStorage(e) {
+    e.preventDefault()
+    const result = await uploadFile(pdf)
+    console.log(result)
+  }
+  function uploadPdf(e) {
+    console.log(e.target.files[0])
+    if (e.target.files[0] !== undefined) {
+      setPdf(e.target.files[0])
+    }
+  }
+  const onSubmitTemp = (data) => {
+    //console.log(data.taxPlate[0])
+  }
 
   return isThereCompany === null ? (
     <div className='content d-flex justify-content-center align-items-center'>
@@ -680,24 +790,3 @@ function ManageCompanyPage() {
 }
 
 export default ManageCompanyPage
-
-// {/* register your input into the hook by invoking the "register" function */}
-// <input name='example' ref={register({ required: true })} />
-// {errors.example && <span>This field is required</span>}
-// {/* include validation with required or other standard HTML validation rules */}
-// <input name='exampleRequired' ref={register({ required: true })} />
-// {/* errors will return when field validation fails  */}
-// {errors.exampleRequired && <span>This field is required</span>}
-
-// function handleImage(e) {
-//   const file = e.target.files[0]
-//   setLogo(file)
-//   if (file !== undefined) {
-//     setCompanyData((prev) => {
-//       return {
-//         ...prev,
-//         logoUrl: URL.createObjectURL(file),
-//       }
-//     })
-//   }
-// }

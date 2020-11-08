@@ -1,7 +1,7 @@
 import React from 'react';
 import {Container,Row,Col,Input,Label} from 'reactstrap';
 import './pickphoto.scss';
-function PickPhoto({handleImage,imageUrl,isRequired,labelTitle}){
+function PickPhoto({handleImage,imageUrl,isRequired,labelTitle,inputName,refTemp}){
     console.log(imageUrl)
     return (
         <Container className='p-0 pickphoto-cont' fluid>
@@ -19,6 +19,8 @@ function PickPhoto({handleImage,imageUrl,isRequired,labelTitle}){
                 <Col className='right'>
                     <Input
                     type='file'
+                    innerRef={refTemp}
+                    name={inputName}
                     onChange={handleImage}
                     >
 

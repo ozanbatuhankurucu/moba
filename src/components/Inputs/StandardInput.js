@@ -5,7 +5,7 @@ function StandardInput({
   labelTitle,
   isRequired,
   inputName,
-  isThereCompany,
+ 
   emptyControl,
   inputType,
   refTemp,
@@ -28,7 +28,7 @@ function StandardInput({
         type={inputType}
         name={inputName}
         innerRef={refTemp}
-        disabled={isThereCompany}
+      
         defaultValue={defaultVal}
       />
       {emptyControl ? (
