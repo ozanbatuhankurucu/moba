@@ -12,10 +12,42 @@ type Company
   description:String
   email: String
   phone:String
-  logoUrl:String
-  isApproved:Boolean
-  instagramUrl:String
-  twitterUrl:String
-  facebookUrl:String
-  websiteUrl:String
+  projects:[Project] @connection(name:"CompanyProjects")
+}
+
+type Project
+  @model
+  @aws_cognito_user_pools
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, read, update, delete] }
+      { allow: groups, groups: ["everyone"], operations: [read] }
+    ]
+  ) {
+  id: ID!
+  company: Company @connection(name:"CompanyProjects")
+  projectName:String
+  deadline:String
+  estimatedCost:String
+  technologies:String
+}
+
+type Task
+  @model
+  @aws_cognito_user_pools
+  @auth(
+    rules: [
+      { allow: owner, operations: [create, read, update, delete] }
+      { allow: groups, groups: ["everyone"], operations: [read] }
+    ]
+  ) {
+  id: ID!
+  name:String
+  status:String
+}
+
+
+type User{
+  id:String
+  username:String
 }

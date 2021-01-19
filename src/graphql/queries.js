@@ -9,12 +9,19 @@ export const getCompany = /* GraphQL */ `
       description
       email
       phone
-      logoUrl
-      isApproved
-      instagramUrl
-      twitterUrl
-      facebookUrl
-      websiteUrl
+      projects {
+        items {
+          id
+          projectName
+          deadline
+          estimatedCost
+          technologies
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -34,12 +41,108 @@ export const listCompanys = /* GraphQL */ `
         description
         email
         phone
-        logoUrl
-        isApproved
-        instagramUrl
-        twitterUrl
-        facebookUrl
-        websiteUrl
+        projects {
+          items {
+          id
+          projectName
+          deadline
+          estimatedCost
+          technologies
+          createdAt
+          updatedAt
+          owner
+        }
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+    }
+  }
+`;
+export const getProject = /* GraphQL */ `
+  query GetProject($id: ID!) {
+    getProject(id: $id) {
+      id
+      company {
+        id
+        companyName
+        description
+        email
+        phone
+        projects {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
+      projectName
+      deadline
+      estimatedCost
+      technologies
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const listProjects = /* GraphQL */ `
+  query ListProjects(
+    $filter: ModelProjectFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listProjects(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        company {
+          id
+          companyName
+          description
+          email
+          phone
+          createdAt
+          updatedAt
+          owner
+        }
+        projectName
+        deadline
+        estimatedCost
+        technologies
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+    }
+  }
+`;
+export const getTask = /* GraphQL */ `
+  query GetTask($id: ID!) {
+    getTask(id: $id) {
+      id
+      name
+      status
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const listTasks = /* GraphQL */ `
+  query ListTasks(
+    $filter: ModelTaskFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTasks(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        status
         createdAt
         updatedAt
         owner

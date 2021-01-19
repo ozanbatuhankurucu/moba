@@ -9,12 +9,19 @@ export const onCreateCompany = /* GraphQL */ `
       description
       email
       phone
-      logoUrl
-      isApproved
-      instagramUrl
-      twitterUrl
-      facebookUrl
-      websiteUrl
+      projects {
+        items {
+          id
+          projectName
+          deadline
+          estimatedCost
+          technologies
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -29,12 +36,19 @@ export const onUpdateCompany = /* GraphQL */ `
       description
       email
       phone
-      logoUrl
-      isApproved
-      instagramUrl
-      twitterUrl
-      facebookUrl
-      websiteUrl
+      projects {
+        items {
+          id
+          projectName
+          deadline
+          estimatedCost
+          technologies
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -49,12 +63,136 @@ export const onDeleteCompany = /* GraphQL */ `
       description
       email
       phone
-      logoUrl
-      isApproved
-      instagramUrl
-      twitterUrl
-      facebookUrl
-      websiteUrl
+      projects {
+        items {
+          id
+          projectName
+          deadline
+          estimatedCost
+          technologies
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onCreateProject = /* GraphQL */ `
+  subscription OnCreateProject($owner: String) {
+    onCreateProject(owner: $owner) {
+      id
+      company {
+        id
+        companyName
+        description
+        email
+        phone
+        projects {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
+      projectName
+      deadline
+      estimatedCost
+      technologies
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onUpdateProject = /* GraphQL */ `
+  subscription OnUpdateProject($owner: String) {
+    onUpdateProject(owner: $owner) {
+      id
+      company {
+        id
+        companyName
+        description
+        email
+        phone
+        projects {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
+      projectName
+      deadline
+      estimatedCost
+      technologies
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onDeleteProject = /* GraphQL */ `
+  subscription OnDeleteProject($owner: String) {
+    onDeleteProject(owner: $owner) {
+      id
+      company {
+        id
+        companyName
+        description
+        email
+        phone
+        projects {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
+      projectName
+      deadline
+      estimatedCost
+      technologies
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onCreateTask = /* GraphQL */ `
+  subscription OnCreateTask($owner: String) {
+    onCreateTask(owner: $owner) {
+      id
+      name
+      status
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onUpdateTask = /* GraphQL */ `
+  subscription OnUpdateTask($owner: String) {
+    onUpdateTask(owner: $owner) {
+      id
+      name
+      status
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const onDeleteTask = /* GraphQL */ `
+  subscription OnDeleteTask($owner: String) {
+    onDeleteTask(owner: $owner) {
+      id
+      name
+      status
       createdAt
       updatedAt
       owner

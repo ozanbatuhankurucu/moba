@@ -23,7 +23,7 @@ import ManageCompanyPage from "./pages/ManageCompanyPage/ManageCompanyPage";
 //MENU PAGES
 import ManageMenusPage from "./pages/ManageMenusPage/ManageMenusPaqe";
 //ORDER PAGES
-import ManageOrdersPage from "./pages/ManageOrdersPage/ManageOrdersPage";
+import ManageOrdersPage from "./pages/ManageOrdersPage/ListProjects";
 import CanceledOrdersPage from "./pages/ManageOrdersPage/CanceledOrdersPage";
 import ConfirmedOrdersPage from "./pages/ManageOrdersPage/ConfirmedOrdersPage";
 
@@ -31,56 +31,56 @@ import ConfirmedOrdersPage from "./pages/ManageOrdersPage/ConfirmedOrdersPage";
 var routes = [
   {
     path: "/dashboard",
-    name: "Kontrol Paneli",
+    name: "Control Panel",
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/admin",
   },
-  {
-    path: "/manage-company",
-    name: "Şirketi Yönet",
-    icon: "nc-icon nc-briefcase-24",
-    component: ManageCompanyPage,
-    layout: "/admin",
-  },
+  // {
+  //   path: "/manage-company",
+  //   name: "Şirketi Yönet",
+  //   icon: "nc-icon nc-briefcase-24",
+  //   component: ManageCompanyPage,
+  //   layout: "/admin",
+  // },
   {
     collapse: true,
     path: "/order",
-    name: "Sipariş",
+    name: "PROJECT",
     icon: "nc-icon nc-cart-simple",
     state: "openComponents",
     views:[
         {
           path: "/manage-orders",
-          name: "Manage Orders",
+          name: "List Projects",
           icon: "nc-icon nc-basket",
           component: ManageOrdersPage,
           layout: "/admin",
         },
-        {
-          path: "/canceled-orders",
-          name: "Canceled Orders",
-          icon: "nc-icon nc-simple-remove",
-          component: CanceledOrdersPage,
-          layout: "/admin",
-        },
-        {
-          path: "/confirmed-orders",
-          name: "Confirmed Orders",
-          icon: "nc-icon nc-check-2",
-          component: ConfirmedOrdersPage,
-          layout: "/admin",
-        }
+        // {
+        //   path: "/canceled-orders",
+        //   name: "Canceled Orders",
+        //   icon: "nc-icon nc-simple-remove",
+        //   component: CanceledOrdersPage,
+        //   layout: "/admin",
+        // },
+        // {
+        //   path: "/confirmed-orders",
+        //   name: "Confirmed Orders",
+        //   icon: "nc-icon nc-check-2",
+        //   component: ConfirmedOrdersPage,
+        //   layout: "/admin",
+        // }
     ]
   
   },
-  {
-    path: "/manage-menus",
-    name: "Menüleri Yönet",
-    icon: "nc-icon nc-chart-pie-36",
-    component: ManageMenusPage,
-    layout: "/admin",
-  }
+  // {
+  //   path: "/manage-menus",
+  //   name: "Menüleri Yönet",
+  //   icon: "nc-icon nc-chart-pie-36",
+  //   component: ManageMenusPage,
+  //   layout: "/admin",
+  // }
   
 ];
 export default routes;
