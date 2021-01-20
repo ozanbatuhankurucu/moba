@@ -16,11 +16,14 @@ import {
 import { API } from 'aws-amplify'
 import * as queries from '../../graphql/queries'
 import * as mutations from '../../graphql/mutations'
-
+import { DatePicker, Space } from 'antd'
+import moment from 'moment'
+const { RangePicker } = DatePicker
 function ListProjects() {
   const [modal, setModal] = useState(false)
   const [company, setCompany] = useState(null)
   const [project, setProjects] = useState(null)
+  const [deadline,setDeadline] = useState(null)
   const [projectInfo, setProjectInfo] = useState({
     projectName: '',
     deadline: '',
@@ -34,7 +37,7 @@ function ListProjects() {
     event.preventDefault()
     const projectDetails = {
       projectName: projectInfo.projectName,
-      deadline: projectInfo.deadline,
+      deadline: '['+ moment(deadline[0]._d).format('LLLL')+' - '+ moment(deadline[1]._d).format('LLLL')+']',
       estimatedCost: projectInfo.estimatedCost,
       technologies: projectInfo.technologies,
       projectCompanyId: company.id,
@@ -72,7 +75,6 @@ function ListProjects() {
   return (
     <div className='content'>
       <Modal isOpen={modal} toggle={toggle}>
-        {' '}
         <Form className='company-form' onSubmit={handleSubmit}>
           <ModalHeader toggle={toggle}></ModalHeader>
           <ModalBody>
@@ -90,17 +92,13 @@ function ListProjects() {
               />
             </FormGroup>
             <FormGroup>
-              <Label for='examplePassword'>
+              <Label className='d-block' for='examplePassword'>
                 Deadline<span style={{ color: 'red' }}>*</span>
               </Label>
-              <Input
-                type='text'
-                name='deadline'
-                id='examplePassword'
-                placeholder='Deadline'
-                required
-                onChange={handleChange}
-              />
+              <RangePicker 
+              onChange={(data)=> setDeadline(data)}
+              required
+              style={{width:'100%'}} />
             </FormGroup>
             <FormGroup>
               <Label for='examplePassword'>
