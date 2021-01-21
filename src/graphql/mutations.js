@@ -115,6 +115,17 @@ export const createProject = /* GraphQL */ `
       deadline
       estimatedCost
       technologies
+      tasks {
+        items {
+          id
+          name
+          status
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -145,6 +156,17 @@ export const updateProject = /* GraphQL */ `
       deadline
       estimatedCost
       technologies
+      tasks {
+        items {
+          id
+          name
+          status
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -175,6 +197,17 @@ export const deleteProject = /* GraphQL */ `
       deadline
       estimatedCost
       technologies
+      tasks {
+        items {
+          id
+          name
+          status
+          createdAt
+          updatedAt
+          owner
+        }
+        nextToken
+      }
       createdAt
       updatedAt
       owner
@@ -190,6 +223,29 @@ export const createTask = /* GraphQL */ `
       id
       name
       status
+      project {
+        id
+        company {
+          id
+          companyName
+          description
+          email
+          phone
+          createdAt
+          updatedAt
+          owner
+        }
+        projectName
+        deadline
+        estimatedCost
+        technologies
+        tasks {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
       createdAt
       updatedAt
       owner
@@ -205,6 +261,29 @@ export const updateTask = /* GraphQL */ `
       id
       name
       status
+      project {
+        id
+        company {
+          id
+          companyName
+          description
+          email
+          phone
+          createdAt
+          updatedAt
+          owner
+        }
+        projectName
+        deadline
+        estimatedCost
+        technologies
+        tasks {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
       createdAt
       updatedAt
       owner
@@ -220,6 +299,29 @@ export const deleteTask = /* GraphQL */ `
       id
       name
       status
+      project {
+        id
+        company {
+          id
+          companyName
+          description
+          email
+          phone
+          createdAt
+          updatedAt
+          owner
+        }
+        projectName
+        deadline
+        estimatedCost
+        technologies
+        tasks {
+          nextToken
+        }
+        createdAt
+        updatedAt
+        owner
+      }
       createdAt
       updatedAt
       owner

@@ -43,44 +43,44 @@ var routes = [
   //   component: ManageCompanyPage,
   //   layout: "/admin",
   // },
-  {
-    collapse: true,
-    path: "/order",
-    name: "PROJECT",
-    icon: "nc-icon nc-cart-simple",
-    state: "openComponents",
-    views:[
-        {
-          path: "/manage-orders",
-          name: "List Projects",
-          icon: "nc-icon nc-basket",
-          component: ManageOrdersPage,
-          layout: "/admin",
-        },
-        // {
-        //   path: "/canceled-orders",
-        //   name: "Canceled Orders",
-        //   icon: "nc-icon nc-simple-remove",
-        //   component: CanceledOrdersPage,
-        //   layout: "/admin",
-        // },
-        // {
-        //   path: "/confirmed-orders",
-        //   name: "Confirmed Orders",
-        //   icon: "nc-icon nc-check-2",
-        //   component: ConfirmedOrdersPage,
-        //   layout: "/admin",
-        // }
-    ]
-  
-  },
   // {
-  //   path: "/manage-menus",
-  //   name: "Menüleri Yönet",
-  //   icon: "nc-icon nc-chart-pie-36",
-  //   component: ManageMenusPage,
-  //   layout: "/admin",
-  // }
+  //   collapse: true,
+  //   path: "/order",
+  //   name: "PROJECT",
+  //   icon: "nc-icon nc-cart-simple",
+  //   state: "openComponents",
+  //   views:[
+  //       {
+  //         path: "/manage-orders",
+  //         name: "List Projects",
+  //         icon: "nc-icon nc-basket",
+  //         component: ManageOrdersPage,
+  //         layout: "/admin",
+  //       },
+  //       // {
+  //       //   path: "/canceled-orders",
+  //       //   name: "Canceled Orders",
+  //       //   icon: "nc-icon nc-simple-remove",
+  //       //   component: CanceledOrdersPage,
+  //       //   layout: "/admin",
+  //       // },
+  //       // {
+  //       //   path: "/confirmed-orders",
+  //       //   name: "Confirmed Orders",
+  //       //   icon: "nc-icon nc-check-2",
+  //       //   component: ConfirmedOrdersPage,
+  //       //   layout: "/admin",
+  //       // }
+  //   ]
+  
+  // },
+  {
+    path: "/projects",
+    name: "PROJECTS",
+    icon: "nc-icon nc-bullet-list-67",
+    component: ManageOrdersPage,
+    layout: "/admin",
+  }
   
 ];
 export default routes;

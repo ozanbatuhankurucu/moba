@@ -175,7 +175,7 @@ class Header extends React.Component {
             navbar
             className="justify-content-end"
           >
-            Hoşgeldin {this.state.userName}
+            Welcome {this.state.userName}
             <Nav navbar>
               <Dropdown
                 nav

@@ -13,17 +13,26 @@ import {
   FormGroup,
   Input,
 } from 'reactstrap'
+import DataTable from 'react-data-table-component'
 import { API } from 'aws-amplify'
 import * as queries from '../../graphql/queries'
 import * as mutations from '../../graphql/mutations'
 import { DatePicker, Space } from 'antd'
 import moment from 'moment'
+import CreateTaskModal from '../../components/CreateTaskModal/CreateTaskModal'
+import ListTaskModal from '../../components/ListTaskModal/ListTaskModal'
 const { RangePicker } = DatePicker
 function ListProjects() {
   const [modal, setModal] = useState(false)
   const [company, setCompany] = useState(null)
-  const [project, setProjects] = useState(null)
-  const [deadline,setDeadline] = useState(null)
+  const [project, setProjects] = useState([])
+  const [deadline, setDeadline] = useState(null)
+  const [createTaskModal, setCreateTaskModal] = useState(false)
+  const [createTaskProject, setCreateTaskProject] = useState(null)
+  const toggleCreateTaskModal = () => setCreateTaskModal(!createTaskModal)
+  const [listTaskModal, setListTaskModal] = useState(false)
+  const toggleListTaskModal = () => setListTaskModal(!listTaskModal)
+
   const [projectInfo, setProjectInfo] = useState({
     projectName: '',
     deadline: '',
@@ -31,13 +40,17 @@ function ListProjects() {
     technologies: '',
   })
   const toggle = () => setModal(!modal)
-  console.log(company)
   console.log(projectInfo)
   async function handleSubmit(event) {
     event.preventDefault()
     const projectDetails = {
       projectName: projectInfo.projectName,
-      deadline: '['+ moment(deadline[0]._d).format('LLLL')+' - '+ moment(deadline[1]._d).format('LLLL')+']',
+      deadline:
+        '[' +
+        moment(deadline[0]._d).format('LLLL') +
+        ' - ' +
+        moment(deadline[1]._d).format('LLLL') +
+        ']',
       estimatedCost: projectInfo.estimatedCost,
       technologies: projectInfo.technologies,
       projectCompanyId: company.id,
@@ -48,8 +61,12 @@ function ListProjects() {
       variables: { input: projectDetails },
     })
     console.log(result.data.createProject)
-    //setCompanies([result.data.createProject])
+
     toggle()
+    console.log(company.projects.nextToken)
+    setProjects((prev) => {
+      return [result.data.createProject, ...prev]
+    })
   }
 
   function handleChange(event) {
@@ -65,15 +82,95 @@ function ListProjects() {
     // Simple query
     const allCompanies = await API.graphql({ query: queries.listCompanys })
     console.log(allCompanies)
-    //console.log(allCompanies.data.listCompanys.items)
+    console.log(allCompanies.data.listCompanys.items[0].projects.items)
     setCompany(allCompanies.data.listCompanys.items[0])
+    setProjects(allCompanies.data.listCompanys.items[0].projects.items)
   }
 
   useEffect(() => {
     getAllCompanies()
   }, [])
+  const data = [{ id: 1, title: 'Conan the Barbarian', year: '1982' }]
+  const columns = [
+    {
+      name: 'Project Name',
+      selector: 'projectName',
+      sortable: true,
+    },
+    {
+      name: 'Owner',
+      selector: 'owner',
+      sortable: true,
+      right: true,
+    },
+    {
+      name: 'Deadline',
+      selector: 'deadline',
+      wrap: true,
+      sortable: true,
+      right: true,
+    },
+    {
+      name: 'Estimated Cost',
+      selector: 'estimatedCost',
+      sortable: true,
+      right: true,
+    },
+    {
+      name: 'Technologies',
+      selector: 'technologies',
+      sortable: true,
+      right: true,
+    },
+    {
+      name: 'Actions',
+      cell: (e) => {
+        return (
+          <div>
+            <span
+              className='mx-1'
+              onClick={() => {
+                console.log(e)
+                setCreateTaskProject(e)
+                toggleListTaskModal()
+              }}
+            >
+              <i class='fas fa-list fa-2x'></i>
+            </span>
+            <span
+              className='mx-1'
+              onClick={() => {
+                console.log(e)
+                setCreateTaskProject(e)
+                toggleCreateTaskModal()
+              }}
+            >
+              <i class='fas fa-plus fa-2x'></i>
+            </span>
+          </div>
+        )
+      },
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+  ]
   return (
     <div className='content'>
+      <ListTaskModal
+        listTaskModal={listTaskModal}
+        setListTaskModal={setListTaskModal}
+        toggleListTaskModal={toggleListTaskModal}
+        project={createTaskProject}
+      />
+      <CreateTaskModal
+        createTaskModal={createTaskModal}
+        setCreateTaskModal={setCreateTaskModal}
+        toggleCreateTaskModal={toggleCreateTaskModal}
+        createTaskProject={createTaskProject}
+        getAllCompanies={getAllCompanies}
+      />
+
       <Modal isOpen={modal} toggle={toggle}>
         <Form className='company-form' onSubmit={handleSubmit}>
           <ModalHeader toggle={toggle}></ModalHeader>
@@ -95,10 +192,11 @@ function ListProjects() {
               <Label className='d-block' for='examplePassword'>
                 Deadline<span style={{ color: 'red' }}>*</span>
               </Label>
-              <RangePicker 
-              onChange={(data)=> setDeadline(data)}
-              required
-              style={{width:'100%'}} />
+              <RangePicker
+                onChange={(data) => setDeadline(data)}
+                required
+                style={{ width: '100%' }}
+              />
             </FormGroup>
             <FormGroup>
               <Label for='examplePassword'>
@@ -138,6 +236,9 @@ function ListProjects() {
         <Button className='float-right' color='success' onClick={toggle}>
           Create Project
         </Button>
+      </div>
+      <div>
+        <DataTable columns={columns} data={project} />
       </div>
     </div>
   )
