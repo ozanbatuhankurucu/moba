@@ -47,9 +47,9 @@ function ListProjects() {
       projectName: projectInfo.projectName,
       deadline:
         '[' +
-        moment(deadline[0]._d).format('LLLL') +
+        moment(deadline[0]._d).format('l') +
         ' - ' +
-        moment(deadline[1]._d).format('LLLL') +
+        moment(deadline[1]._d).format('l') +
         ']',
       estimatedCost: projectInfo.estimatedCost,
       technologies: projectInfo.technologies,
@@ -94,7 +94,22 @@ function ListProjects() {
   const columns = [
     {
       name: 'Project Name',
-      selector: 'projectName',
+      cell: (e) => (
+        <span
+          style={{
+            color: 'rgb(251, 176, 130)',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            console.log(e)
+            setCreateTaskProject(e)
+            toggleListTaskModal()
+          }}
+        >
+          {e.projectName}
+        </span>
+      ),
       sortable: true,
     },
     {
@@ -137,17 +152,28 @@ function ListProjects() {
             >
               <i class='fas fa-list fa-2x'></i>
             </span>
-            <span
-              className='mx-1'
-              onClick={() => {
-                console.log(e)
-                setCreateTaskProject(e)
-                toggleCreateTaskModal()
-              }}
-            >
-              <i class='fas fa-plus fa-2x'></i>
-            </span>
           </div>
+        )
+      },
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+    {
+      name: 'Add Task',
+      cell: (e) => {
+        return (
+          <Button
+            outline
+            color='primary'
+            onClick={() => {
+              console.log(e)
+              setCreateTaskProject(e)
+              toggleCreateTaskModal()
+            }}
+          >
+            Add Task
+          </Button>
         )
       },
       ignoreRowClick: true,

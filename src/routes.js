@@ -30,8 +30,8 @@ import ConfirmedOrdersPage from "./pages/ManageOrdersPage/ConfirmedOrdersPage";
 
 var routes = [
   {
-    path: "/dashboard",
-    name: "Control Panel",
+    path: "/company",
+    name: "Company",
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/admin",
