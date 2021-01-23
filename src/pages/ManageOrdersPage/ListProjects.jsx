@@ -12,6 +12,7 @@ import {
   Label,
   FormGroup,
   Input,
+  Alert,
 } from 'reactstrap'
 import DataTable from 'react-data-table-component'
 import { API } from 'aws-amplify'
@@ -32,7 +33,7 @@ function ListProjects() {
   const toggleCreateTaskModal = () => setCreateTaskModal(!createTaskModal)
   const [listTaskModal, setListTaskModal] = useState(false)
   const toggleListTaskModal = () => setListTaskModal(!listTaskModal)
-
+  console.log(company)
   const [projectInfo, setProjectInfo] = useState({
     projectName: '',
     deadline: '',
@@ -40,6 +41,9 @@ function ListProjects() {
     technologies: '',
   })
   const toggle = () => setModal(!modal)
+  const [visible, setVisible] = useState(false)
+
+  const onDismiss = () => setVisible(false)
   console.log(projectInfo)
   async function handleSubmit(event) {
     event.preventDefault()
@@ -81,10 +85,11 @@ function ListProjects() {
   const getAllCompanies = async () => {
     // Simple query
     const allCompanies = await API.graphql({ query: queries.listCompanys })
-    console.log(allCompanies)
-    console.log(allCompanies.data.listCompanys.items[0].projects.items)
+
     setCompany(allCompanies.data.listCompanys.items[0])
-    setProjects(allCompanies.data.listCompanys.items[0].projects.items)
+    if (allCompanies.data.listCompanys.items[0] !== undefined) {
+      setProjects(allCompanies.data.listCompanys.items[0].projects.items)
+    }
   }
 
   useEffect(() => {
@@ -181,8 +186,19 @@ function ListProjects() {
       button: true,
     },
   ]
+
   return (
     <div className='content'>
+      <Container fluid>
+        <Row>
+          <Col className='d-flex justify-content-end '>
+            <Alert color='info' isOpen={visible} toggle={onDismiss}>
+              <span>You cannot create a project without having a company!</span>
+            </Alert>
+          </Col>
+        </Row>
+      </Container>
+
       <ListTaskModal
         listTaskModal={listTaskModal}
         setListTaskModal={setListTaskModal}
@@ -259,7 +275,17 @@ function ListProjects() {
         </Form>
       </Modal>
       <div>
-        <Button className='float-right' color='success' onClick={toggle}>
+        <Button
+          className='float-right'
+          color='success'
+          onClick={() => {
+            if (company !== undefined) {
+              toggle()
+            } else {
+              setVisible(true)
+            }
+          }}
+        >
           Create Project
         </Button>
       </div>
