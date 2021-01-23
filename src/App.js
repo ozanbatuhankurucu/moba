@@ -29,7 +29,7 @@ function App() {
     <Router history={hist}>
       <Switch>
         <Route path='/admin' render={(props) => <AdminLayout {...props} />} />
-        <Redirect to='/admin/dashboard' />
+        <Redirect to='/admin/company' />
       </Switch>
     </Router>
   ) : (
