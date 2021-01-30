@@ -189,9 +189,9 @@ class Header extends React.Component {
                   </p>
                 </DropdownToggle>
                 <DropdownMenu right>
-                  <DropdownItem tag="a">Ayarlar</DropdownItem>
-                  <DropdownItem tag="a">Duzenle</DropdownItem>
-                  <DropdownItem tag="a" onClick={this.signOut}>Cikis Yap</DropdownItem>
+                  <DropdownItem tag="a">Settings</DropdownItem>
+                  <DropdownItem tag="a">Edit</DropdownItem>
+                  <DropdownItem tag="a" onClick={this.signOut}>Sign-out</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             
